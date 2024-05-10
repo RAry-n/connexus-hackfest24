@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "851697693723",
+    "project_id": "connexus-hackfest24",
+    "storage_bucket": "connexus-hackfest24.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:851697693723:android:0d7d204a919f299ed234be",
+        "android_client_info": {
+          "package_name": "com.example.connexus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMbOlN0hl3j7X02_53flKAZcOPOPyFPTY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
