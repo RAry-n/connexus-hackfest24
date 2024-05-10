@@ -32,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.video_call_sharp),
             label: 'Meetings',
+
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.call),
@@ -42,8 +43,19 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.grey[300],
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.grey[600],
+        selectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w200,
+          fontFamily: 'Futura',
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w100,
+          fontFamily: 'Futura',
+        ),
       ),
-      body: widgetList[myIndex],
+      body: IndexedStack(
+        index: myIndex,
+        children: widgetList,
+      ),
       // backgroundColor: Colors.black,
     );
   }
