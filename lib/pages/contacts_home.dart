@@ -1,6 +1,8 @@
 import 'package:contacts_service/contacts_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/my_colors.dart';
 import '../themes/text_themes.dart';
@@ -103,15 +105,15 @@ class _ContactsHomeState extends State<ContactsHome> {
             });
           },
         ),
-        // IconButton(
-        //   icon: const Icon(
-        //     Icons.logout,
-        //     color: Colors.white,
-        //   ),
-        //   onPressed: () async {
-        //     await _logout();
-        //   },
-        // ),
+        IconButton(
+          icon: const Icon(
+            Icons.logout,
+            color: Colors.white,
+          ),
+          onPressed: () async {
+            await _logout();
+          },
+        ),
       ],
     );
   }
@@ -180,5 +182,21 @@ class _ContactsHomeState extends State<ContactsHome> {
         filteredContactsList = filteredContacts;
       });
     }
+  }
+
+  Future<void> _logout() async {
+    // Clear SharedPreferences
+    final SharedPreferences sp = await SharedPreferences.getInstance();
+    await sp.clear();
+
+    // Sign out from Firebase
+    await FirebaseAuth.instance.signOut();
+
+    // Navigate to GetStartedScreen and pop all routes
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/get_started',
+          (route) => false,
+    );
   }
 }

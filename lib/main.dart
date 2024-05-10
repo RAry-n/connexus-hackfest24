@@ -1,7 +1,11 @@
+import 'package:connexus/pages/get_started_screen.dart';
 import 'package:connexus/pages/home_screen.dart';
+import 'package:connexus/pages/register_screen.dart';
+import 'package:connexus/provider/my_auth_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
 
@@ -24,17 +28,60 @@ class MyApp extends StatelessWidget {
       DeviceOrientation.portraitDown,
     ]);
 
+    return ChangeNotifierProvider<MyAuthProvider>(
+      create: (_) => MyAuthProvider(),
+      child: const MaterialApp(
+        home: MyAppHomePage(),
+        debugShowCheckedModeBanner: false,
+      ),
+    );
+  }
+}
+
+class MyAppHomePage extends StatefulWidget {
+  const MyAppHomePage({super.key});
+
+  @override
+  State<MyAppHomePage> createState() => _MyAppHomePageState();
+}
+
+class _MyAppHomePageState extends State<MyAppHomePage> {
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeApp();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isInitialized) {
+      return Container();
+    }
+
+    final ap = Provider.of<MyAuthProvider>(context);
+    final bool loggedIn = ap.isSignedIn;
+
     return MaterialApp(
-      initialRoute: '/home_screen',
+      initialRoute: loggedIn ? '/home_screen' : '/get_started',
       routes: {
         // '/chat': (context) => const Chat(),
         '/home_screen': (context) => const HomeScreen(),
-        // '/get_started': (context) => const GetStartedScreen(),
-        // '/register': (context) => const RegisterScreen(),
+        '/get_started': (context) => const GetStartedScreen(),
+        '/register': (context) => const RegisterScreen(),
         // '/conversation': (context) => const ConversationPage(),
       },
       debugShowCheckedModeBanner: false,
       // navigatorKey: navigatorKey,
     );
+  }
+
+  Future<void> _initializeApp() async {
+    final ap = Provider.of<MyAuthProvider>(context, listen: false);
+    await ap.checkSignIn();
+    setState(() {
+      _isInitialized = true;
+    });
   }
 }
