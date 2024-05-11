@@ -1,3 +1,4 @@
+import 'package:connexus/pages/chat.dart';
 import 'package:connexus/pages/conversation.dart';
 import 'package:connexus/pages/get_started_screen.dart';
 import 'package:connexus/pages/home_screen.dart';
@@ -69,7 +70,7 @@ class _MyAppHomePageState extends State<MyAppHomePage> {
     return MaterialApp(
       initialRoute: loggedIn ? '/home_screen' : '/get_started',
       routes: {
-        // '/chat': (context) => const Chat(),
+        '/chat': (context) => const Chat(),
         '/home_screen': (context) => const HomeScreen(),
         '/get_started': (context) => const GetStartedScreen(),
         '/register': (context) => const RegisterScreen(),

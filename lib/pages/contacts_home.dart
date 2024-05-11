@@ -135,18 +135,20 @@ class _ContactsHomeState extends State<ContactsHome> {
       ),
       title: TextField(
         controller: _searchController,
-        cursorColor: Colors.white,
+        cursorColor: Colors.greenAccent,
+        autofocus: true,
         style: const TextStyle(
           color: Colors.white, // Set text color to white
           fontFamily: 'Futura', // Use Futura font
         ),
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           hintText: 'Search...',
           hintStyle: TextStyle(
-            color: Colors.white, // Set hint text color to white
+            color: Colors.grey[300], // Set hint text color to white
             fontFamily: 'Futura', // Use Futura font for hint text
           ),
           border: InputBorder.none,
+
         ),
         onChanged: (value) {
           // Implement search logic here
