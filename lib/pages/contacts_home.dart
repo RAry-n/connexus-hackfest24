@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/my_colors.dart';
@@ -19,15 +21,16 @@ class _ContactsHomeState extends State<ContactsHome> {
   List<Contact> filteredContactsList = [];
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
+  List<String> registeredNumbers = [];
 
   @override
   void initState() {
     super.initState();
     _requestContactsPermission();
-
     _searchController.addListener(() {
       filterContacts();
     });
+    getRegisteredNumbers();
   }
 
   @override
@@ -37,12 +40,16 @@ class _ContactsHomeState extends State<ContactsHome> {
       body: Container(
         padding: const EdgeInsets.all(20),
         child: ListView.builder(
-          itemCount: _isSearching == true ? filteredContactsList.length : contacts.length,
+          itemCount: _isSearching ? filteredContactsList.length : contacts.length,
           itemBuilder: (context, index) {
-            final currentContact = _isSearching == true ? filteredContactsList[index] : contacts[index];
+            final currentContact = _isSearching ? filteredContactsList[index] : contacts[index];
             if (currentContact.phones == null || currentContact.phones!.isEmpty) {
               return const SizedBox.shrink();
             }
+            String? phoneNumber = currentContact.phones!.first.value;
+            String formattedPhoneNumber = phoneNumber!.replaceAll(RegExp(r'\D'), '');
+            if(formattedPhoneNumber.length == 12) formattedPhoneNumber = formattedPhoneNumber.substring(2);
+            bool isRegistered = registeredNumbers.contains(formattedPhoneNumber);
             return Container(
               margin: const EdgeInsets.only(bottom: 10),
               decoration: BoxDecoration(
@@ -50,11 +57,13 @@ class _ContactsHomeState extends State<ContactsHome> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: ListTile(
-                onTap: (){
-                  Map data = {
-                    'contact' : currentContact
-                  };
-                  Navigator.pushNamed(context, '/chat', arguments: data);
+                onTap: () {
+                  if (isRegistered) {
+                    Map data = {'contact': currentContact};
+                    Navigator.pushNamed(context, '/chat', arguments: data);
+                  } else {
+                    shareApp();
+                  }
                 },
                 title: Text(
                   currentContact.displayName ?? 'Unknown',
@@ -66,13 +75,13 @@ class _ContactsHomeState extends State<ContactsHome> {
                   ),
                 ),
                 subtitle: Text(
-                  currentContact.phones!.first.value ?? 'Unknown',
+                  phoneNumber,
                   style: const TextStyle(
                     fontWeight: FontWeight.w200,
                     fontFamily: 'Futura',
                   ),
                 ),
-                trailing: const Icon(Icons.arrow_forward_ios_rounded),
+                trailing: isRegistered ? const Icon(Icons.arrow_forward_ios_rounded) : const Icon(Icons.add),
                 leading: (currentContact.avatar != null && currentContact.avatar!.isNotEmpty)
                     ? CircleAvatar(
                   backgroundImage: MemoryImage(currentContact.avatar!),
@@ -148,7 +157,6 @@ class _ContactsHomeState extends State<ContactsHome> {
             fontFamily: 'Futura', // Use Futura font for hint text
           ),
           border: InputBorder.none,
-
         ),
         onChanged: (value) {
           // Implement search logic here
@@ -186,7 +194,82 @@ class _ContactsHomeState extends State<ContactsHome> {
     }
   }
 
+  void getRegisteredNumbers() async {
+    List<String> numbers = [];
+    // Get the phone numbers from Firestore
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('users').get();
+    for (var doc in querySnapshot.docs) {
+      // Extract the phone number from the document ID
+      numbers.add(doc.id);
+    }
+    setState(() {
+      registeredNumbers = numbers;
+    });
+  }
+
+  void shareApp() {
+    String appLink = 'your_app_link';
+    Share.share('Check out this awesome app: $appLink');
+  }
+
   Future<void> _logout() async {
+    // Show confirmation dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            "Confirm Logout",
+            style: TextStyle(
+              color: MyColors.text,
+              fontWeight: FontWeight.w500,
+              fontFamily: 'Futura',
+            ),
+          ),
+          content: const Text(
+            "Are you sure you want to logout?",
+            style: TextStyle(
+              color: MyColors.text,
+              fontWeight: FontWeight.w300,
+              fontFamily: 'Futura',
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop(); // Close the dialog
+                // Perform logout
+                await performLogout();
+              },
+              child: const Text(
+                "Yes",
+                style: TextStyle(
+                  color: Colors.cyan,
+                  fontWeight: FontWeight.w300,
+                  fontFamily: 'Futura',
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text(
+                "No",
+                style: TextStyle(
+                  color: Colors.cyan,
+                  fontWeight: FontWeight.w300,
+                  fontFamily: 'Futura',
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> performLogout() async {
     // Clear SharedPreferences
     final SharedPreferences sp = await SharedPreferences.getInstance();
     await sp.clear();
@@ -201,4 +284,5 @@ class _ContactsHomeState extends State<ContactsHome> {
           (route) => false,
     );
   }
+
 }
