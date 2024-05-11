@@ -23,18 +23,18 @@ class _OtpScreenState extends State<OtpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = Provider.of<MyAuthProvider>(context, listen: true).isLoading;
+    // final isLoading = Provider.of<MyAuthProvider>(context, listen: true).isLoading;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Container(
         padding: const EdgeInsets.all(12.0),
-        child: isLoading == true
-            ? const Center(
-          child: CircularProgressIndicator(
-            color: Colors.cyan,
-          ),
-        )
-            : Column(
+        // child: isLoading == true
+        //     ? const Center(
+        //   child: CircularProgressIndicator(
+        //     color: Colors.cyan,
+        //   ),
+        // )
+         child : Column(
           children: [
             const SizedBox(height: 30),
             Align(
