@@ -1,0 +1,10 @@
+0 hello
+1 please
+2 bye
+3 drink
+4 eat
+5 I
+6 love you
+7 no
+8 yes
+9 thank you
