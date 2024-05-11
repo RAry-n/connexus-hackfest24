@@ -15,8 +15,10 @@ class ConversationScreen extends StatefulWidget {
 }
 
 class _ConversationScreenState extends State<ConversationScreen> {
-  String selectedLanguagePart1 = 'English'; // Default language for the first part
-  String selectedLanguagePart2 = 'Spanish'; // Default language for the second part
+  String selectedLanguagePart1 =
+      'English'; // Default language for the first part
+  String selectedLanguagePart2 =
+      'Spanish'; // Default language for the second part
 
   final _controller1 = TextEditingController();
   final _controller2 = TextEditingController();
@@ -35,13 +37,17 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   void initSpeech() async {
+    await _speechToText.initialize();
     setState(() {});
   }
 
   void _startListening(bool isPart1) async {
-    await _speechToText.listen(onResult: (result) {
-      _onSpeechResult(result, isPart1);
-    }, localeId: languageCode(isPart1 ? selectedLanguagePart1 : selectedLanguagePart2));
+    await _speechToText.listen(
+        onResult: (result) {
+          _onSpeechResult(result, isPart1);
+        },
+        localeId: languageCode(
+            isPart1 ? selectedLanguagePart1 : selectedLanguagePart2));
   }
 
   void _stopListening() async {
@@ -53,7 +59,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
     setState(() {
       _wordsSpoken = "${result.recognizedWords}";
 
-      if(isPart1) {
+      if (isPart1) {
         _controller1.setText(_wordsSpoken);
       } else {
         _controller2.setText(_wordsSpoken);
@@ -69,9 +75,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
     String inputLanguage = isPart1 ? code1 : code2;
     String outputLanguage = isPart1 ? code2 : code1;
 
-    final translated = await translator.translate(inputText, from: inputLanguage, to: outputLanguage);
+    final translated = await translator.translate(inputText,
+        from: inputLanguage, to: outputLanguage);
     setState(() {
-      if(isPart1) {
+      if (isPart1) {
         _controller2.setText(translated.text);
       } else {
         _controller1.setText(translated.text);
@@ -149,7 +156,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
     }
   }
 
-  Widget _buildLanguageButton(BuildContext dialogContext, String language, bool isPart1) {
+  Widget _buildLanguageButton(
+      BuildContext dialogContext, String language, bool isPart1) {
     return InkWell(
       onTap: () {
         Navigator.of(dialogContext).pop(language);
@@ -159,7 +167,13 @@ class _ConversationScreenState extends State<ConversationScreen> {
         child: Text(
           language,
           style: TextStyle(
-            color: isPart1 ? selectedLanguagePart1 == language ? Colors.blue : Colors.black : selectedLanguagePart2 == language ? Colors.blue : Colors.black,
+            color: isPart1
+                ? selectedLanguagePart1 == language
+                    ? Colors.blue
+                    : Colors.black
+                : selectedLanguagePart2 == language
+                    ? Colors.blue
+                    : Colors.black,
           ),
         ),
       ),
@@ -201,7 +215,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
                             hintText: "Enter text...",
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(4),
-                              borderSide: const BorderSide(color: Colors.black12),
+                              borderSide:
+                                  const BorderSide(color: Colors.black12),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(4),
@@ -211,10 +226,15 @@ class _ConversationScreenState extends State<ConversationScreen> {
                             suffixIcon: IconButton(
                               icon: const Icon(Icons.volume_up_rounded),
                               onPressed: () {
-                                speak(languageCode(selectedLanguagePart1), _controller1.text);
+                                speak(languageCode(selectedLanguagePart1),
+                                    _controller1.text);
                               },
                             ),
-                            contentPadding: const EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0, bottom: 30.0),
+                            contentPadding: const EdgeInsets.only(
+                                top: 10.0,
+                                left: 10.0,
+                                right: 10.0,
+                                bottom: 30.0),
                           ),
                           textAlignVertical: TextAlignVertical.top,
                           controller: _controller1,
@@ -263,11 +283,16 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         borderRadius: BorderRadius.circular(25.0),
                         child: InkWell(
                           onTap: () {
-                            if(_speechToText.isListening) {
-                              _partListening = 0;
+                            if (_speechToText.isListening) {
+                              setState(() {
+                                _partListening = 0;
+                              });
+
                               _stopListening();
                             } else {
-                              _partListening = 1;
+                              setState(() {
+                                _partListening = 1;
+                              });
                               _startListening(true);
                             }
                             // if(_speechToText.isListening) {
@@ -287,7 +312,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           child: Padding(
                             padding: const EdgeInsets.all(12.0),
                             child: Icon(
-                              (_speechToText.isListening && _partListening == 1) ? Icons.mic : Icons.mic_off,
+                              (_speechToText.isListening && _partListening == 1)
+                                  ? Icons.mic
+                                  : Icons.mic_off,
                               color: Colors.white,
                             ),
                           ),
@@ -342,7 +369,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
                             hintText: "Enter text...",
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(4),
-                              borderSide: const BorderSide(color: Colors.black12),
+                              borderSide:
+                                  const BorderSide(color: Colors.black12),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(4),
@@ -353,10 +381,15 @@ class _ConversationScreenState extends State<ConversationScreen> {
                             suffixIcon: IconButton(
                               icon: const Icon(Icons.volume_up_rounded),
                               onPressed: () {
-                                speak(languageCode(selectedLanguagePart2), _controller2.text);
+                                speak(languageCode(selectedLanguagePart2),
+                                    _controller2.text);
                               },
                             ),
-                            contentPadding: const EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0, bottom: 30.0),
+                            contentPadding: const EdgeInsets.only(
+                                top: 10.0,
+                                left: 10.0,
+                                right: 10.0,
+                                bottom: 30.0),
                           ),
                           textAlignVertical: TextAlignVertical.top,
                           controller: _controller2,
@@ -411,11 +444,16 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         borderRadius: BorderRadius.circular(25.0),
                         child: InkWell(
                           onTap: () {
-                            if(_speechToText.isListening) {
-                              _partListening = 0;
+                            if (_speechToText.isListening) {
+                              setState(() {
+                                _partListening = 0;
+                              });
+
                               _stopListening();
                             } else {
-                              _partListening = 2;
+                              setState(() {
+                                _partListening = 2;
+                              });
                               _startListening(false);
                             }
                           },
@@ -423,7 +461,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           child: Padding(
                             padding: const EdgeInsets.all(12.0),
                             child: Icon(
-                              (_speechToText.isListening && _partListening == 2) ? Icons.mic : Icons.mic_off,
+                              (_speechToText.isListening && _partListening == 2)
+                                  ? Icons.mic
+                                  : Icons.mic_off,
                               color: Colors.white,
                             ),
                           ),
