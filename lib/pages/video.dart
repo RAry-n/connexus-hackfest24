@@ -19,8 +19,8 @@ import '../provider/notiification_service.dart';
 import '../widgets/user_photo.dart';
 import '../constants/utils.dart';
 
-// const appID = "cfece32da59341699bfd790bced4249f";
-// const tokenBaseUrl = "https://connexustoken-e962cf99bf69.herokuapp.com";
+const appID = "cfece32da59341699bfd790bced4249f";
+const tokenBaseUrl = "https://connexustoken-e962cf99bf69.herokuapp.com";
 
 class VideoPage extends StatefulWidget {
   final UserModel user;
@@ -197,8 +197,7 @@ class _VideoPageState extends State<VideoPage> {
   //
   // }
   Future<void> getToken() async {
-    final response = await http.get(Uri.parse(
-        '$tokenBaseUrl/rtc/${widget.call.channel}/publisher/uid/$uid?expiry=3600'));
+    final response = await http.get(Uri.parse('$tokenBaseUrl/rtc/${widget.call.channel}/publisher/uid/$uid?expiry=3600'));
     if (response.statusCode == 200) {
       setState(() {
         token = jsonDecode(response.body)['rtcToken'];
@@ -225,10 +224,7 @@ class _VideoPageState extends State<VideoPage> {
     //       (value) => setState((){}),
     // );
     await _client.initialize();
-    setState(() {
-
-    });
-
+    setState(() {});
   }
 
   Future<void> initializeCall() async {
@@ -330,11 +326,7 @@ class _VideoPageState extends State<VideoPage> {
       clientRoleType: ClientRoleType.clientRoleBroadcaster,
       channelProfile: ChannelProfileType.channelProfileCommunication,
     );
-    await rtcEngine?.joinChannel(
-        token: token!,
-        channelId: widget.call.channel,
-        uid: uid,
-        options: options);
+    await rtcEngine?.joinChannel(token: token!, channelId: widget.call.channel, uid: uid, options: options);
   }
 
   @override
@@ -355,124 +347,122 @@ class _VideoPageState extends State<VideoPage> {
         ),
         body: localUserJoined == false || callID == null
             ? const Center(
-          child: CircularProgressIndicator(),
-        )
+                child: CircularProgressIndicator(),
+              )
             : StreamBuilder<DocumentSnapshot>(
-            stream: callsCollection.doc(callID!).snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                CallModel call = CallModel(
-                  id: snapshot.data!['id'],
-                  channel: snapshot.data!['channel'],
-                  caller: snapshot.data!['caller'],
-                  called: snapshot.data!['called'],
-                  active: snapshot.data!['active'],
-                  accepted: snapshot.data!['accepted'],
-                  rejected: snapshot.data!['rejected'],
-                  connected: snapshot.data!['connected'],
-                );
-                return call.rejected == true
-                    ? const Center(child: Text("Call Declined"))
-                    : Stack(children: [
-                  //other user video widget
-                  Center(
-                    child: remoteVideo(call: call),
-                  ),
-                  //Local user video widget
-                  if (rtcEngine != null)
-                    Positioned.fill(
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: SizedBox(
-                          width: 100,
-                          height: 150,
-                          child: AgoraVideoView(
-                            controller: VideoViewController(
-                              rtcEngine: rtcEngine!,
-                              canvas: VideoCanvas(uid: uid),
+                stream: callsCollection.doc(callID!).snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    CallModel call = CallModel(
+                      id: snapshot.data!['id'],
+                      channel: snapshot.data!['channel'],
+                      caller: snapshot.data!['caller'],
+                      called: snapshot.data!['called'],
+                      active: snapshot.data!['active'],
+                      accepted: snapshot.data!['accepted'],
+                      rejected: snapshot.data!['rejected'],
+                      connected: snapshot.data!['connected'],
+                    );
+                    return call.rejected == true
+                        ? const Center(child: Text("Call Declined"))
+                        : Stack(children: [
+                            //other user video widget
+                            Center(
+                              child: remoteVideo(call: call),
                             ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  // _client.isInitialized ? AgoraVideoButtons(client: _client) : Text(""),
+                            //Local user video widget
+                            if (rtcEngine != null)
+                              Positioned.fill(
+                                child: Align(
+                                  alignment: Alignment.topLeft,
+                                  child: SizedBox(
+                                    width: 100,
+                                    height: 150,
+                                    child: AgoraVideoView(
+                                      controller: VideoViewController(
+                                        rtcEngine: rtcEngine!,
+                                        canvas: VideoCanvas(uid: uid),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            // _client.isInitialized ? AgoraVideoButtons(client: _client) : Text(""),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Positioned.fill(
-                        child: Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Padding(
-                              padding: const EdgeInsets.all(40),
-                              child: FloatingActionButton(
-                                backgroundColor: Colors.transparent,
-                                onPressed: () {
-                                  if(_isMuted){
-                                    rtcEngine?.enableLocalAudio(true);
-                                  }
-                                  else{
-                                    rtcEngine?.enableLocalAudio(false);
-                                  }
-                                  setState(() {
-                                    _isMuted=!_isMuted;
-                                  });
-                                },
-                                child: Icon(
-                                  _isMuted ? Icons.mic_off : Icons.mic,
-                                  color: Colors.white,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Positioned.fill(
+                                  child: Align(
+                                    alignment: Alignment.bottomLeft,
+                                    child: Padding(
+                                        padding: const EdgeInsets.all(40),
+                                        child: FloatingActionButton(
+                                          backgroundColor: Colors.transparent,
+                                          onPressed: () {
+                                            if (_isMuted) {
+                                              rtcEngine?.enableLocalAudio(true);
+                                            } else {
+                                              rtcEngine?.enableLocalAudio(false);
+                                            }
+                                            setState(() {
+                                              _isMuted = !_isMuted;
+                                            });
+                                          },
+                                          child: Icon(
+                                            _isMuted ? Icons.mic_off : Icons.mic,
+                                            color: Colors.white,
+                                          ),
+                                        )),
+                                  ),
                                 ),
-                              )),
-                        ),
-                      ),
-                      Positioned.fill(
-                        child: Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Padding(
-                              padding: const EdgeInsets.all(40),
-                              child: FloatingActionButton(
-                                backgroundColor: Colors.transparent,
-                                onPressed: () {
-                                  if(_isCamOff){
-                                    rtcEngine?.enableLocalVideo(true);
-                                  }
-                                  else{
-                                    rtcEngine?.enableLocalVideo(false);
-                                  }
-                                  setState(() {
-                                    _isCamOff=!_isCamOff;
-                                  });
-                                },
-                                child: Icon(
-                                  _isCamOff ? Icons.videocam_off : Icons.videocam,
-                                  color: Colors.white,
+                                Positioned.fill(
+                                  child: Align(
+                                    alignment: Alignment.bottomLeft,
+                                    child: Padding(
+                                        padding: const EdgeInsets.all(40),
+                                        child: FloatingActionButton(
+                                          backgroundColor: Colors.transparent,
+                                          onPressed: () {
+                                            if (_isCamOff) {
+                                              rtcEngine?.enableLocalVideo(true);
+                                            } else {
+                                              rtcEngine?.enableLocalVideo(false);
+                                            }
+                                            setState(() {
+                                              _isCamOff = !_isCamOff;
+                                            });
+                                          },
+                                          child: Icon(
+                                            _isCamOff ? Icons.videocam_off : Icons.videocam,
+                                            color: Colors.white,
+                                          ),
+                                        )),
+                                  ),
                                 ),
-                              )),
-                        ),
-                      ),
-                      Positioned.fill(
-                        child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Padding(
-                              padding: const EdgeInsets.only(bottom: 40),
-                              child: FloatingActionButton(
-                                backgroundColor: Colors.red,
-                                onPressed: () {
-                                  rtcEngine?.leaveChannel();
-                                },
-                                child: const Icon(
-                                  Icons.call_end_rounded,
-                                  color: Colors.white,
+                                Positioned.fill(
+                                  child: Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: Padding(
+                                        padding: const EdgeInsets.only(bottom: 40),
+                                        child: FloatingActionButton(
+                                          backgroundColor: Colors.red,
+                                          onPressed: () {
+                                            rtcEngine?.leaveChannel();
+                                          },
+                                          child: const Icon(
+                                            Icons.call_end_rounded,
+                                            color: Colors.white,
+                                          ),
+                                        )),
+                                  ),
                                 ),
-                              )),
-                        ),
-                      ),
-                    ],
-                  ),
-                ]);
-              }
-              return const SizedBox.shrink();
-            }),
+                              ],
+                            ),
+                          ]);
+                  }
+                  return const SizedBox.shrink();
+                }),
       ),
     );
   }
@@ -492,17 +482,15 @@ class _VideoPageState extends State<VideoPage> {
           Positioned.fill(
             child: Center(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    UserPhoto(radius: 50, url: widget.user.photo),
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Text(call.connected == false
-                          ? "Connecting to ${widget.user.name}"
-                          : "Waiting Response.."),
-                    )
-                  ],
-                )),
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                UserPhoto(radius: 50, url: widget.user.photo),
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Text(call.connected == false ? "Connecting to ${widget.user.name}" : "Waiting Response.."),
+                )
+              ],
+            )),
           )
       ],
     );
