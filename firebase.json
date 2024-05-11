@@ -1,1 +1,41 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"connexus-hackfest24","appId":"1:851697693723:android:0d7d204a919f299ed234be","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"connexus-hackfest24","configurations":{"android":"1:851697693723:android:0d7d204a919f299ed234be","ios":"1:851697693723:ios:a204d557d71d14c0d234be","macos":"1:851697693723:ios:a204d557d71d14c0d234be","web":"1:851697693723:web:1bf1b625fb02ffb4d234be","windows":"1:851697693723:web:a8c52ec396688016d234be"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "connexus-hackfest24",
+          "appId": "1:851697693723:android:0d7d204a919f299ed234be",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "connexus-hackfest24",
+          "configurations": {
+            "android": "1:851697693723:android:0d7d204a919f299ed234be",
+            "ios": "1:851697693723:ios:a204d557d71d14c0d234be",
+            "macos": "1:851697693723:ios:a204d557d71d14c0d234be",
+            "web": "1:851697693723:web:1bf1b625fb02ffb4d234be",
+            "windows": "1:851697693723:web:a8c52ec396688016d234be"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"%RESOURCE_DIR%\" run build"
+      ]
+    }
+  ]
+}
