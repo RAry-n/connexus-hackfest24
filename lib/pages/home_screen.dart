@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../constants/my_colors.dart';
 import 'contacts_home.dart';
 import 'meetings_home.dart';
 
@@ -56,7 +57,80 @@ class _HomeScreenState extends State<HomeScreen> {
         index: myIndex,
         children: widgetList,
       ),
+      floatingActionButton: Stack(
+        children: [
+          Positioned(
+            bottom: 16.0,
+            right: 16.0,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                _buildSignLanguageButton('Sign Language', Icons.sign_language_rounded),
+                const SizedBox(height: 16.0),
+                _buildConversationButton('Conversation   ', Icons.translate),
+              ],
+            ),
+          ),
+        ],
+      ),
       // backgroundColor: Colors.black,
+    );
+  }
+
+  Widget _buildSignLanguageButton(String label, IconData iconData) {
+    return ElevatedButton.icon(
+      onPressed: () {
+        Navigator.pushNamed(context, '/sign_language');
+      },
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all<Color>(Colors.cyan),
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4.0),
+          ),
+        ),
+      ),
+      icon: Icon(
+        iconData,
+        color: Colors.white,
+      ),
+      label: Text(
+        label,
+        style: const TextStyle(
+          color: MyColors.alter,
+          fontWeight: FontWeight.w300,
+          fontFamily: 'Futura',
+        ),
+      ),
+    );
+  }
+
+  Widget _buildConversationButton(String label, IconData iconData) {
+    return ElevatedButton.icon(
+      onPressed: () {
+        Navigator.pushNamed(context, '/conversation');
+      },
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all<Color>(Colors.cyan),
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4.0),
+          ),
+        ),
+      ),
+      icon: Icon(
+        iconData,
+        color: Colors.white,
+      ),
+      label: Text(
+        label,
+        style: const TextStyle(
+          color: MyColors.alter,
+          fontWeight: FontWeight.w300,
+          fontFamily: 'Futura',
+        ),
+      ),
     );
   }
 }

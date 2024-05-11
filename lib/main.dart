@@ -1,3 +1,4 @@
+import 'package:connexus/pages/conversation.dart';
 import 'package:connexus/pages/get_started_screen.dart';
 import 'package:connexus/pages/home_screen.dart';
 import 'package:connexus/pages/register_screen.dart';
@@ -70,7 +71,7 @@ class _MyAppHomePageState extends State<MyAppHomePage> {
         '/home_screen': (context) => const HomeScreen(),
         '/get_started': (context) => const GetStartedScreen(),
         '/register': (context) => const RegisterScreen(),
-        // '/conversation': (context) => const ConversationPage(),
+        '/conversation': (context) => const ConversationScreen(),
       },
       debugShowCheckedModeBanner: false,
       // navigatorKey: navigatorKey,

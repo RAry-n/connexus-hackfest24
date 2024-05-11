@@ -45,6 +45,9 @@ dependencies:
   shared_preferences: ^2.2.3
   country_picker: ^2.0.25
   pinput: ^4.0.0
+  speech_to_text: ^6.6.0
+  translator: ^1.0.0
+  flutter_tts: ^4.0.2
 
 dev_dependencies:
   flutter_test:
