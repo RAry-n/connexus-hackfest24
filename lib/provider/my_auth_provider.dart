@@ -15,8 +15,6 @@ class MyAuthProvider extends ChangeNotifier {
   bool _isSignedIn = false;
   bool get isSignedIn => _isSignedIn;
 
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
 
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
@@ -35,8 +33,7 @@ class MyAuthProvider extends ChangeNotifier {
   Future<void> signInWithPhone(BuildContext context, String phoneNumber, UserModel userData) async {
     try {
       // Show loading screen
-      _isLoading = true; // Update isLoading before starting verification
-      notifyListeners();
+      // notifyListeners();
 
       await _firebaseAuth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
@@ -59,7 +56,6 @@ class MyAuthProvider extends ChangeNotifier {
       showSnackBar(context, e.message.toString());
     } finally {
       // Hide loading screen
-      _isLoading = false;
       notifyListeners();
     }
   }
@@ -73,8 +69,7 @@ class MyAuthProvider extends ChangeNotifier {
   }) async {
     try {
       // Show loading screen
-      _isLoading = true;
-      notifyListeners();
+      // notifyListeners();
 
       PhoneAuthCredential credentials = PhoneAuthProvider.credential(
         verificationId: verificationId,
@@ -121,7 +116,7 @@ class MyAuthProvider extends ChangeNotifier {
       showSnackBar(context, e.message.toString());
     } finally {
       // Hide loading screen
-      _isLoading = false;
+
       notifyListeners();
     }
   }
