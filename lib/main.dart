@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:connexus/pages/chat.dart';
 import 'package:connexus/pages/conversation.dart';
 import 'package:connexus/pages/get_started_screen.dart';
@@ -5,6 +6,7 @@ import 'package:connexus/pages/home_screen.dart';
 import 'package:connexus/pages/join_with_code_screen.dart';
 import 'package:connexus/pages/new_meeting_screen.dart';
 import 'package:connexus/pages/register_screen.dart';
+import 'package:connexus/pages/sign_language_screen.dart';
 import 'package:connexus/provider/my_auth_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -12,9 +14,10 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
-
+List<CameraDescription>? cameras;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  cameras = await availableCameras();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -77,6 +80,7 @@ class _MyAppHomePageState extends State<MyAppHomePage> {
         '/conversation': (context) => const ConversationScreen(),
         '/join_with_code': (context) => const JoinWithCodeScreen(),
         '/new_meeting': (context) => const NewMeetingScreen(),
+        '/sign_language': (context) => const SignLanguageScreen(),
       },
       debugShowCheckedModeBanner: false,
       // navigatorKey: navigatorKey,
