@@ -1,4 +1,3 @@
-
 import 'package:contacts_service/contacts_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -40,12 +39,10 @@ class _ChatState extends State<Chat> {
   var msgController = TextEditingController();
 
   void getData() async {
-    currPhone =
-        FirebaseAuth.instance.currentUser!.phoneNumber.toString().substring(3);
+    currPhone = FirebaseAuth.instance.currentUser!.phoneNumber.toString().substring(3);
     // currPhone = "+9162274063";
     dbRef = FirebaseDatabase.instance.ref();
-    contactData =
-    (ModalRoute.of(context)?.settings.arguments as Map)['contact'];
+    contactData = (ModalRoute.of(context)?.settings.arguments as Map)['contact'];
     receiverPhone = contactData.phones!.first.value!;
     receiverPhone = receiverPhone.replaceAll(" ", '');
     if (receiverPhone[0] == '+') {
@@ -63,7 +60,7 @@ class _ChatState extends State<Chat> {
       chatHistory.sort((Map a, Map b) {
         return a['time'].compareTo(b['time']);
       });
-      print(chatHistory);
+      // print(chatHistory);
       setState(() {
         isFetched = true;
       });
@@ -71,7 +68,7 @@ class _ChatState extends State<Chat> {
       setState(() {
         isFetched = true;
       });
-      print('No data available.');
+      // print('No data available.');
     }
   }
 
@@ -79,7 +76,6 @@ class _ChatState extends State<Chat> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     scrollToBottom();
   }
@@ -114,15 +110,13 @@ class _ChatState extends State<Chat> {
             // Center(child: Text("data")),
             Expanded(
               child: ListView(
-                physics: BouncingScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
                 controller: listScrollController,
                 shrinkWrap: true,
                 children: chatHistory.map((e) {
                   String msg = e['msg'];
                   int milli = e['time'];
-                  String time = DateTime.fromMillisecondsSinceEpoch(milli)
-                      .toString()
-                      .substring(0, 16);
+                  String time = DateTime.fromMillisecondsSinceEpoch(milli).toString().substring(0, 16);
                   bool isCurr = (e['isCurr'] == '1');
                   return ChatBubble(
                     time: time,
@@ -136,17 +130,21 @@ class _ChatState extends State<Chat> {
               padding: const EdgeInsets.all(12),
               child: TextField(
                 controller: msgController,
+                style: const TextStyle(
+                  color: MyColors.text,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Futura',
+                ),
                 decoration: InputDecoration(
                   contentPadding: const EdgeInsets.fromLTRB(24, 16, 16, 16),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   hintText: "message",
                   suffixIcon: IconButton(
                     onPressed: () {
                       sendMsg(msgController.text);
                       msgController.text = "";
-
                     },
                     icon: const Icon(Icons.send),
                   ),
@@ -162,14 +160,15 @@ class _ChatState extends State<Chat> {
   void scrollToBottom({bool animate = false}) {
     if (listScrollController.hasClients) {
       final position = listScrollController.position.maxScrollExtent;
-      if (animate)
+      if (animate) {
         listScrollController.animateTo(
           position,
-          duration: Duration(seconds: 3),
+          duration: const Duration(seconds: 3),
           curve: Curves.easeOut,
         );
-      else
+      } else {
         listScrollController.jumpTo(position);
+      }
     }
   }
 
