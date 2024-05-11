@@ -5,7 +5,7 @@ import 'package:contacts_service/contacts_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 const appID = "cfece32da59341699bfd790bced4249f";
-const tokenbaseUrl = "https://connexustoken-e962cf99bf69.herokuapp.com";
+const tokenBaseUrl = "https://connexustoken-e962cf99bf69.herokuapp.com";
 const fcmServerKey = "AAAAbO-RiDA:APA91bGk0cQ-QQSOH75oogaJCAWZc-9nHPyyDRNbG4isioxU0PSb3fhGXRaHfa4wWpsPMM25ltcmYwUOdhzuuF2XN8Pf4EDIX-7EN8EBAgHxg8iU68QS2T9KXy85LKjFAsTbqPXLIhCx";
 
 List<Contact> contacts = [];

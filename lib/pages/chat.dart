@@ -1,9 +1,12 @@
+import 'package:connexus/pages/video.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/my_colors.dart';
+import '../models/call.dart';
+import '../models/user.dart';
 import '../themes/text_themes.dart';
 import '../widgets/chat_bubble.dart';
 import '../widgets/loading_widget.dart';
@@ -196,25 +199,25 @@ class _ChatState extends State<Chat> {
   }
 
   void connectCall() {
-    // UserModel user = UserModel(
-    //     id: receiverPhone,
-    //     name: contactData.displayName.toString(),
-    //     photo: "",
-    //     email: receiverPhone);
-    // Navigator.push(context, MaterialPageRoute(builder: (context) {
-    //   return VideoPage(
-    //       user: user,
-    //       call: CallModel(
-    //         id: null,
-    //         // channel: "video",
-    //         channel: "video$currPhone$receiverPhone",
-    //         caller: currPhone,
-    //         called: receiverPhone,
-    //         active: null,
-    //         rejected: null,
-    //         accepted: null,
-    //         connected: null,
-    //       ));
-    // }));
+    UserModel user = UserModel(
+        id: receiverPhone,
+        name: contactData.displayName.toString(),
+        photo: "",
+        email: receiverPhone);
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return VideoPage(
+          user: user,
+          call: CallModel(
+            id: null,
+            // channel: "video",
+            channel: "video$currPhone$receiverPhone",
+            caller: currPhone,
+            called: receiverPhone,
+            active: null,
+            rejected: null,
+            accepted: null,
+            connected: null,
+          ));
+    }));
   }
 }

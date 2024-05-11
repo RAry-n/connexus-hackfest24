@@ -144,8 +144,7 @@ class NotificationServices {
   }
 
   static Future<void> sendNotification(String token, Map data) async {
-
-
+    print("SEnttt!!!!!!!!!!!!!!!!!!");
     try {
       http.Response response = await http.post(
         Uri.parse("https://fcm.googleapis.com/fcm/send"),
@@ -184,7 +183,7 @@ class NotificationServices {
       );
       response;
     } catch (e) {
-      e;
+      print("error : "+e.toString());
     }
   }
 

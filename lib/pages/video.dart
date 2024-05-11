@@ -17,9 +17,10 @@ import '../models/call.dart';
 import '../models/user.dart';
 import '../provider/notiification_service.dart';
 import '../widgets/user_photo.dart';
+import '../constants/utils.dart';
 
-const appID = "cfece32da59341699bfd790bced4249f";
-const tokenBaseUrl = "https://connexustoken-e962cf99bf69.herokuapp.com";
+// const appID = "cfece32da59341699bfd790bced4249f";
+// const tokenBaseUrl = "https://connexustoken-e962cf99bf69.herokuapp.com";
 
 class VideoPage extends StatefulWidget {
   final UserModel user;
@@ -41,36 +42,36 @@ class _VideoPageState extends State<VideoPage> {
   late final AgoraClient _client;
   bool _isMuted = false;
   bool _isCamOff = false;
-  late Uint8List data;
-  static int frameCount=0;
-  AudioFrameObserver audioFrameObserver = AudioFrameObserver(
-      onRecordAudioFrame: (String channelId, AudioFrame audioFrame) {
-        // Gets the captured audio frame
-      },
-      onPlaybackAudioFrame: (String channelId, AudioFrame audioFrame) {
-        // Gets the audio frame for playback
-        debugPrint('[onPlaybackAudioFrame] audioFrame: ${audioFrame.toJson()}');
-      }
-  );
-
-  VideoFrameObserver videoFrameObserver = VideoFrameObserver(
-    // onCaptureVideoFrame: (VideoFrame videoFrame) {
-    //   // The video data that this callback gets has not been pre-processed
-    //   // After pre-processing, you can send the processed video data back
-    //   // to the SDK through this callback
-    //   debugPrint('[onCaptureVideoFrame] videoFrame: ${videoFrame.toJson()}');
-    // },
-      onRenderVideoFrame: (String channelId, int remoteUid, VideoFrame videoFrame) {
-        frameCount++;
-        if(frameCount%60!=0) return;
-        var data= yuvToRgb(videoFrame.yBuffer!, videoFrame.uBuffer!, videoFrame.vBuffer!, 224, 224);
-        List<List<List<List<double>>>> input= convertInput( data );
-        runInterpreter(input);
-        // Occurs each time the SDK receives a video frame sent by the remote user.
-        // In this callback, you can get the video data before encoding.
-        // You then process the data according to your particular scenario.
-      }
-  );
+  // late Uint8List data;
+  // static int frameCount=0;
+  // AudioFrameObserver audioFrameObserver = AudioFrameObserver(
+  //     onRecordAudioFrame: (String channelId, AudioFrame audioFrame) {
+  //       // Gets the captured audio frame
+  //     },
+  //     onPlaybackAudioFrame: (String channelId, AudioFrame audioFrame) {
+  //       // Gets the audio frame for playback
+  //       debugPrint('[onPlaybackAudioFrame] audioFrame: ${audioFrame.toJson()}');
+  //     }
+  // );
+  //
+  // VideoFrameObserver videoFrameObserver = VideoFrameObserver(
+  //   // onCaptureVideoFrame: (VideoFrame videoFrame) {
+  //   //   // The video data that this callback gets has not been pre-processed
+  //   //   // After pre-processing, you can send the processed video data back
+  //   //   // to the SDK through this callback
+  //   //   debugPrint('[onCaptureVideoFrame] videoFrame: ${videoFrame.toJson()}');
+  //   // },
+  //     onRenderVideoFrame: (String channelId, int remoteUid, VideoFrame videoFrame) {
+  //       frameCount++;
+  //       if(frameCount%60!=0) return;
+  //       var data= yuvToRgb(videoFrame.yBuffer!, videoFrame.uBuffer!, videoFrame.vBuffer!, 224, 224);
+  //       List<List<List<List<double>>>> input= convertInput( data );
+  //       runInterpreter(input);
+  //       // Occurs each time the SDK receives a video frame sent by the remote user.
+  //       // In this callback, you can get the video data before encoding.
+  //       // You then process the data according to your particular scenario.
+  //     }
+  // );
 
 
 
@@ -89,112 +90,112 @@ class _VideoPageState extends State<VideoPage> {
   @override
   void dispose() {
     rtcEngine!.release();
-    rtcEngine!.getMediaEngine().unregisterAudioFrameObserver(audioFrameObserver);
-    rtcEngine!.getMediaEngine().unregisterVideoFrameObserver(videoFrameObserver);
+    // rtcEngine!.getMediaEngine().unregisterAudioFrameObserver(audioFrameObserver);
+    // rtcEngine!.getMediaEngine().unregisterVideoFrameObserver(videoFrameObserver);
     rtcEngine!.leaveChannel();
     super.dispose();
   }
-  static Uint8List yuvToRgb(Uint8List yData, Uint8List uData, Uint8List vData, int width, int height) {
-    // Create an empty RGB image buffer
-    Uint8List rgbData = Uint8List(width * height * 3);
-
-    // Iterate through each pixel and convert YUV to RGB
-    for (int y = 0; y < height; y++) {
-      for (int x = 0; x < width; x++) {
-        int index = y * width + x;
-
-        int yValue = yData[index].toInt();
-        int uValue = uData[(y ~/ 2) * (width ~/ 2) + (x ~/ 2)].toInt();
-        int vValue = vData[(y ~/ 2) * (width ~/ 2) + (x ~/ 2)].toInt();
-
-        // YUV to RGB conversion
-        int r = (yValue + 1.13983 * (vValue - 128)).toInt();
-        int g = (yValue - 0.39465 * (uValue - 128) - 0.58060 * (vValue - 128)).toInt();
-        int b = (yValue + 2.03211 * (uValue - 128)).toInt();
-
-        // Clamp the values to the range [0, 255]
-        r = r.clamp(0, 255);
-        g = g.clamp(0, 255);
-        b = b.clamp(0, 255);
-
-        // Store the RGB values in the buffer
-        rgbData[index * 3] = r;
-        rgbData[index * 3 + 1] = g;
-        rgbData[index * 3 + 2] = b;
-      }
-    }
-
-    return rgbData;
-  }
-  static List<List<List<List<double>>>> convertInput( Uint8List data ){
-    //Uint8List data = yuv420ToRgba8888(cameraImage!.planes.map((e) => e.bytes).toList(), 224, 224);
-    List<List<List<double>>> l3=[];
-    int p=0;
-    for(int i=0;i<224;i++){
-      List<List<double>> l2=[];
-      for(int j=0;j<224;j++){
-        List<double> lst=[];
-        for(int k=0;k<4;k++) {
-          if(k<3) lst.add(data[p]/256.0);
-          p++;
-        }
-        l2.add(lst);
-      }
-      l3.add(l2);
-    }
-    //input.add(l3);
-    return [l3];
-  }
+  // static Uint8List yuvToRgb(Uint8List yData, Uint8List uData, Uint8List vData, int width, int height) {
+  //   // Create an empty RGB image buffer
+  //   Uint8List rgbData = Uint8List(width * height * 3);
+  //
+  //   // Iterate through each pixel and convert YUV to RGB
+  //   for (int y = 0; y < height; y++) {
+  //     for (int x = 0; x < width; x++) {
+  //       int index = y * width + x;
+  //
+  //       int yValue = yData[index].toInt();
+  //       int uValue = uData[(y ~/ 2) * (width ~/ 2) + (x ~/ 2)].toInt();
+  //       int vValue = vData[(y ~/ 2) * (width ~/ 2) + (x ~/ 2)].toInt();
+  //
+  //       // YUV to RGB conversion
+  //       int r = (yValue + 1.13983 * (vValue - 128)).toInt();
+  //       int g = (yValue - 0.39465 * (uValue - 128) - 0.58060 * (vValue - 128)).toInt();
+  //       int b = (yValue + 2.03211 * (uValue - 128)).toInt();
+  //
+  //       // Clamp the values to the range [0, 255]
+  //       r = r.clamp(0, 255);
+  //       g = g.clamp(0, 255);
+  //       b = b.clamp(0, 255);
+  //
+  //       // Store the RGB values in the buffer
+  //       rgbData[index * 3] = r;
+  //       rgbData[index * 3 + 1] = g;
+  //       rgbData[index * 3 + 2] = b;
+  //     }
+  //   }
+  //
+  //   return rgbData;
+  // }
+  // static List<List<List<List<double>>>> convertInput( Uint8List data ){
+  //   //Uint8List data = yuv420ToRgba8888(cameraImage!.planes.map((e) => e.bytes).toList(), 224, 224);
+  //   List<List<List<double>>> l3=[];
+  //   int p=0;
+  //   for(int i=0;i<224;i++){
+  //     List<List<double>> l2=[];
+  //     for(int j=0;j<224;j++){
+  //       List<double> lst=[];
+  //       for(int k=0;k<4;k++) {
+  //         if(k<3) lst.add(data[p]/256.0);
+  //         p++;
+  //       }
+  //       l2.add(lst);
+  //     }
+  //     l3.add(l2);
+  //   }
+  //   //input.add(l3);
+  //   return [l3];
+  // }
 
 
   // Creating matrix representation, [300, 300, 3]
 
-  static runInterpreter(List<List<List<List<double>>>> input) async
-  {
-    print("000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
-    final interpreter = await tfl.Interpreter.fromAsset('assets/ml/accha_model.tflite');
-    print("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
-
-    // List<List<List<List<double>>>> input = convertInput();
-
-    print("22222222222222222222222222222222222222222222222222222222222222222222222222222222");
-    List<List<num>> out = [List<num>.filled(29, 0)];
-    print("3333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333");
-
-
-    print("444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444");
-// inference
-    interpreter.run(input, out);
-    print("555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555");
-// print the output
-    print(out);
-    // processOutput(out[0]);
-    // interpreter.close();
-  }
-  void registerframes()
-  {
-    // Set the format of raw audio data.
-    int SAMPLE_RATE = 16000, SAMPLE_NUM_OF_CHANNEL = 1, SAMPLES_PER_CALL = 1024;
-
-    rtcEngine!.setRecordingAudioFrameParameters(
-        sampleRate: SAMPLE_RATE,
-        channel: SAMPLE_NUM_OF_CHANNEL,
-        mode: RawAudioFrameOpModeType.rawAudioFrameOpModeReadWrite,
-        samplesPerCall: SAMPLES_PER_CALL);
-    rtcEngine!.setPlaybackAudioFrameParameters(
-        sampleRate: SAMPLE_RATE,
-        channel: SAMPLE_NUM_OF_CHANNEL,
-        mode: RawAudioFrameOpModeType.rawAudioFrameOpModeReadWrite,
-        samplesPerCall: SAMPLES_PER_CALL);
-    rtcEngine!.setMixedAudioFrameParameters(
-        sampleRate: SAMPLE_RATE,
-        channel: SAMPLE_NUM_OF_CHANNEL,
-        samplesPerCall: SAMPLES_PER_CALL);
-
-    rtcEngine!.getMediaEngine().registerAudioFrameObserver(audioFrameObserver);
-    rtcEngine!.getMediaEngine().registerVideoFrameObserver(videoFrameObserver);
-
-  }
+//   static runInterpreter(List<List<List<List<double>>>> input) async
+//   {
+//     print("000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+//     final interpreter = await tfl.Interpreter.fromAsset('assets/ml/accha_model.tflite');
+//     print("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+//
+//     // List<List<List<List<double>>>> input = convertInput();
+//
+//     print("22222222222222222222222222222222222222222222222222222222222222222222222222222222");
+//     List<List<num>> out = [List<num>.filled(29, 0)];
+//     print("3333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333");
+//
+//
+//     print("444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444");
+// // inference
+//     interpreter.run(input, out);
+//     print("555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555");
+// // print the output
+//     print(out);
+//     // processOutput(out[0]);
+//     // interpreter.close();
+//   }
+  // void registerframes()
+  // {
+  //   // Set the format of raw audio data.
+  //   int SAMPLE_RATE = 16000, SAMPLE_NUM_OF_CHANNEL = 1, SAMPLES_PER_CALL = 1024;
+  //
+  //   rtcEngine!.setRecordingAudioFrameParameters(
+  //       sampleRate: SAMPLE_RATE,
+  //       channel: SAMPLE_NUM_OF_CHANNEL,
+  //       mode: RawAudioFrameOpModeType.rawAudioFrameOpModeReadWrite,
+  //       samplesPerCall: SAMPLES_PER_CALL);
+  //   rtcEngine!.setPlaybackAudioFrameParameters(
+  //       sampleRate: SAMPLE_RATE,
+  //       channel: SAMPLE_NUM_OF_CHANNEL,
+  //       mode: RawAudioFrameOpModeType.rawAudioFrameOpModeReadWrite,
+  //       samplesPerCall: SAMPLES_PER_CALL);
+  //   rtcEngine!.setMixedAudioFrameParameters(
+  //       sampleRate: SAMPLE_RATE,
+  //       channel: SAMPLE_NUM_OF_CHANNEL,
+  //       samplesPerCall: SAMPLES_PER_CALL);
+  //
+  //   rtcEngine!.getMediaEngine().registerAudioFrameObserver(audioFrameObserver);
+  //   rtcEngine!.getMediaEngine().registerVideoFrameObserver(videoFrameObserver);
+  //
+  // }
   Future<void> getToken() async {
     final response = await http.get(Uri.parse(
         '$tokenBaseUrl/rtc/${widget.call.channel}/publisher/uid/$uid?expiry=3600'));
@@ -314,6 +315,7 @@ class _VideoPageState extends State<VideoPage> {
         final d = value.data() as Map<String, dynamic>;
         for (token in d['tokens']) {
           print(token);
+          print("#############################################################################################################################");
           log("data : $data");
           NotificationServices.sendNotification(token!, data);
         }
@@ -322,7 +324,7 @@ class _VideoPageState extends State<VideoPage> {
   }
 
   Future joinVideoChannel() async {
-    registerframes();
+    // registerframes();
     await rtcEngine?.startPreview();
     ChannelMediaOptions options = const ChannelMediaOptions(
       clientRoleType: ClientRoleType.clientRoleBroadcaster,

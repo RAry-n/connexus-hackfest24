@@ -13,6 +13,7 @@ import 'package:connexus/pages/register_screen.dart';
 import 'package:connexus/pages/sign_language_screen.dart';
 import 'package:connexus/provider/my_auth_provider.dart';
 import 'package:connexus/provider/notiification_service.dart';
+import 'package:connexus/widgets/loading_widget.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -126,7 +127,7 @@ class _MyAppHomePageState extends State<MyAppHomePage> {
   @override
   Widget build(BuildContext context) {
     if (!_isInitialized) {
-      return Container();
+      return const LoadingWidget();
     }
 
     final ap = Provider.of<MyAuthProvider>(context);
