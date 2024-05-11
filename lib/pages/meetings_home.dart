@@ -17,21 +17,21 @@ class _MeetingsHomeState extends State<MeetingsHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-            backgroundColor: MyColors.appBarColor,
-            titleTextStyle: TextThemes.appBar,
-            title: const Text('Meetings'),
-            iconTheme: const IconThemeData(color: Colors.white),
-            actions: [
-              IconButton(
-                icon: const Icon(
-                  Icons.logout,
-                  color: Colors.white,
-                ),
-                onPressed: () async {
-                  await _logout();
-                },
-              ),
-            ],
+        backgroundColor: MyColors.appBarColor,
+        titleTextStyle: TextThemes.appBar,
+        title: const Text('Meetings'),
+        iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.logout,
+              color: Colors.white,
+            ),
+            onPressed: () async {
+              await _logout();
+            },
+          ),
+        ],
       ),
       body: Column(children: [
         Padding(
@@ -71,13 +71,18 @@ class _MeetingsHomeState extends State<MeetingsHome> {
             onPressed: () {
               Navigator.pushNamed(context, '/join_with_code');
             },
-            icon: const Icon(Icons.margin, color: Colors.cyan,),
-            label: const Text("Join with a code",
+            icon: const Icon(
+              Icons.margin,
+              color: Colors.cyan,
+            ),
+            label: const Text(
+              "Join with a code",
               style: TextStyle(
                 color: Colors.cyan,
                 fontWeight: FontWeight.w300,
                 fontFamily: 'Futura',
-              ),),
+              ),
+            ),
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.cyan,
               side: const BorderSide(color: Colors.cyan),
@@ -90,7 +95,65 @@ class _MeetingsHomeState extends State<MeetingsHome> {
       ]),
     );
   }
+
   Future<void> _logout() async {
+    // Show confirmation dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            "Confirm Logout",
+            style: TextStyle(
+              color: MyColors.text,
+              fontWeight: FontWeight.w500,
+              fontFamily: 'Futura',
+            ),
+          ),
+          content: const Text(
+            "Are you sure you want to logout?",
+            style: TextStyle(
+              color: MyColors.text,
+              fontWeight: FontWeight.w300,
+              fontFamily: 'Futura',
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop(); // Close the dialog
+                // Perform logout
+                await performLogout();
+              },
+              child: const Text(
+                "Yes",
+                style: TextStyle(
+                  color: Colors.cyan,
+                  fontWeight: FontWeight.w300,
+                  fontFamily: 'Futura',
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text(
+                "No",
+                style: TextStyle(
+                  color: Colors.cyan,
+                  fontWeight: FontWeight.w300,
+                  fontFamily: 'Futura',
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> performLogout() async {
     // Clear SharedPreferences
     final SharedPreferences sp = await SharedPreferences.getInstance();
     await sp.clear();
@@ -102,7 +165,7 @@ class _MeetingsHomeState extends State<MeetingsHome> {
     Navigator.pushNamedAndRemoveUntil(
       context,
       '/get_started',
-          (route) => false,
+      (route) => false,
     );
   }
 }
