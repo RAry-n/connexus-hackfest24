@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/my_colors.dart';
 import '../themes/text_themes.dart';
@@ -15,10 +17,21 @@ class _MeetingsHomeState extends State<MeetingsHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: MyColors.appBarColor,
-        titleTextStyle: TextThemes.appBar,
-        title: const Text('Meetings'),
-        iconTheme: const IconThemeData(color: Colors.white),
+            backgroundColor: MyColors.appBarColor,
+            titleTextStyle: TextThemes.appBar,
+            title: const Text('Meetings'),
+            iconTheme: const IconThemeData(color: Colors.white),
+            actions: [
+              IconButton(
+                icon: const Icon(
+                  Icons.logout,
+                  color: Colors.white,
+                ),
+                onPressed: () async {
+                  await _logout();
+                },
+              ),
+            ],
       ),
       body: Column(children: [
         Padding(
@@ -75,6 +88,21 @@ class _MeetingsHomeState extends State<MeetingsHome> {
         ),
         Image.network("https://user-images.githubusercontent.com/67534990/127524449-fa11a8eb-473a-4443-962a-07a3e41c71c0.png")
       ]),
+    );
+  }
+  Future<void> _logout() async {
+    // Clear SharedPreferences
+    final SharedPreferences sp = await SharedPreferences.getInstance();
+    await sp.clear();
+
+    // Sign out from Firebase
+    await FirebaseAuth.instance.signOut();
+
+    // Navigate to GetStartedScreen and pop all routes
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/get_started',
+          (route) => false,
     );
   }
 }
