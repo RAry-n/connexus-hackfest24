@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../constants/image_strings.dart';
 import '../constants/my_colors.dart';
 import '../constants/text_strings.dart';
+import '../models/user.dart';
 import '../provider/my_auth_provider.dart';
 import '../themes/text_themes.dart';
 
@@ -116,7 +117,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     final ap = Provider.of<MyAuthProvider>(context, listen: false);
     String phoneNumber = phoneEditingController.text.trim();
-    ap.signInWithPhone(context, "+${selectedCountry.phoneCode}$phoneNumber").then((_) {
+    UserModel userData = UserModel(id: phoneNumber, name: "name", photo: "photoUrl", email: phoneNumber);
+    ap.signInWithPhone(context, "+${selectedCountry.phoneCode}$phoneNumber", userData).then((_) {
       setState(() {
         _isLoading = false;
       });

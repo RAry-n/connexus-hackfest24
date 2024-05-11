@@ -1,7 +1,14 @@
+
+
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../constants/utils.dart';
+import '../models/user.dart';
 import '../pages/otp_screen.dart';
 
 class MyAuthProvider extends ChangeNotifier {
@@ -13,6 +20,8 @@ class MyAuthProvider extends ChangeNotifier {
 
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
+  UserModel? currUser;
+
   MyAuthProvider() {
     // No need to call checkSignIn() here as it's already called in signInWithPhone
   }
@@ -23,7 +32,7 @@ class MyAuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> signInWithPhone(BuildContext context, String phoneNumber) async {
+  Future<void> signInWithPhone(BuildContext context, String phoneNumber, UserModel userData) async {
     try {
       // Show loading screen
       _isLoading = true; // Update isLoading before starting verification
@@ -35,9 +44,11 @@ class MyAuthProvider extends ChangeNotifier {
           await _firebaseAuth.signInWithCredential(phoneAuthCredential);
         },
         verificationFailed: (error) {
-          throw Exception(error.message);
+          showSnackBar(context, error.message.toString());
+          // throw Exception(error.message);
         },
         codeSent: (verificationId, forceResendingToken) {
+          currUser = userData;
           // Navigate to OTP screen
           Navigator.push(context, MaterialPageRoute(builder: (context) => OtpScreen(verificationId: verificationId)));
         },
@@ -78,8 +89,32 @@ class MyAuthProvider extends ChangeNotifier {
         await sp.setBool("is_signedIn", true);
         _isSignedIn = true; // Update sign-in status in-memory
         notifyListeners();
+        // currUser?.id = user.uid;
+        await userExists(id: currUser!.id).then((exist) async {
+          if(exist){
+            FirebaseMessaging.instance.getToken().then(
+                    (token) async {
+                  await usersCollection.doc(currUser!.id).update(
+                      {
+                        'tokens': FieldValue.arrayUnion([token])
+                      }
+                  );
+                }
+            );
+            onSuccess();
+          }
+          else{
+            createUser(user: currUser!).then(
+                    (created) async {
+                  if(created){
+                    onSuccess();
+                  }
+                }
+            );
+          }
+        });
 
-        onSuccess();
+
       }
     } on FirebaseAuthException catch (e) {
       // Show error message
@@ -89,6 +124,35 @@ class MyAuthProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<bool> createUser({required UserModel user}) async {
+    bool created = false;
+    await FirebaseMessaging.instance.getToken().then(
+          (token) async {
+        await usersCollection.doc(user.id).set(
+          {
+            'id' : user.id,
+            'name' : user.name,
+            'email' : user.email,
+            'photo' : user.photo,
+            'tokens' : [token],
+          },
+        ).then((value) => created =true);
+      },
+    );
+    return created;
+  }
+
+  Future<bool> userExists({required String id}) async {
+
+    bool exists = false;
+
+    await usersCollection.where('id', isEqualTo: id).get().then( (user) {
+      exists = user.docs.isEmpty ? false : true;
+    });
+
+    return exists;
   }
 
   // Helper method to show snackbar
