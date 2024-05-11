@@ -1,3 +1,6 @@
+
+
+import 'package:connexus/widgets/loading_widget.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -24,7 +27,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return _isLoading
+    ? LoadingWidget()
+    : Scaffold(
       resizeToAvoidBottomInset: false,
       body: Container(
         padding: const EdgeInsets.all(12.0),
@@ -83,16 +88,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _isLoading ? null : () => sendPhoneNumber(),
+                onPressed: sendPhoneNumber,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.cyan,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
+                child: const Text(
                   "Send OTP",
                   style: TextStyle(
                     color: MyColors.alter,
@@ -110,18 +113,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  void sendPhoneNumber() {
+  void sendPhoneNumber() async {
+    _isLoading = true;
     setState(() {
-      _isLoading = true;
+
     });
+    print("before sign in : ");
+    print(_isLoading);
 
     final ap = Provider.of<MyAuthProvider>(context, listen: false);
     String phoneNumber = phoneEditingController.text.trim();
     UserModel userData = UserModel(id: phoneNumber, name: "name", photo: "photoUrl", email: phoneNumber);
-    ap.signInWithPhone(context, "+${selectedCountry.phoneCode}$phoneNumber", userData).then((_) {
-      setState(() {
-        _isLoading = false;
-      });
+    await ap.signInWithPhone(context, "+${selectedCountry.phoneCode}$phoneNumber", userData).then((_) {
+
     });
+    _isLoading = false;
+    setState(() {
+
+    });
+    print("after sign in : ");
+    print(_isLoading);
   }
 }
