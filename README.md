@@ -19,4 +19,10 @@ To tackle this challenge, our team is developing a video conferencing app equipp
 * Notification Service: Firebase Cloud Messaging 📲
 * Tools: Git, GitHub 💻
 
+* ## Workflow:
+* Implement converation (speech-to-text and text-to-speech) using Google Cloud API through flutter speech-to-text and text-to-speech plugins
+* Integrate YOLO V5 TFLite model into app
+* Integrate the Agora SDK to implement Video Calls
+* Add the above added features to the video calling feature
+
 Enhancing accessibility and inclusivity, one communication at a time! 🌟
