@@ -123,14 +123,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     final ap = Provider.of<MyAuthProvider>(context, listen: false);
     String phoneNumber = phoneEditingController.text.trim();
-    await Future.delayed(const Duration(milliseconds: 500), () {
 
-    });
     UserModel userData = UserModel(id: phoneNumber, name: "name", photo: "photoUrl", email: phoneNumber);
     await ap.signInWithPhone(context, "+${selectedCountry.phoneCode}$phoneNumber", userData).then((_) {
       print("after signed in!!!");
     });
+    await Future.delayed(const Duration(milliseconds: 1000), () {
 
+    });
     setState(() {
       _isLoading = false;
     });

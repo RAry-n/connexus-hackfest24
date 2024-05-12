@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:agora_uikit/agora_uikit.dart';
 import 'package:flutter/cupertino.dart';
@@ -71,9 +73,9 @@ class _VideoCallState extends State<VideoCall> {
   @override
   void initState() {
 
-
     getToken();
     model.initialize();
+    initTimer();
     Future.delayed(Duration(seconds: 3)).then(
           (value) => setState(() => _loading = false),
     );
@@ -162,6 +164,21 @@ class _VideoCallState extends State<VideoCall> {
     }
   }
 
+  void initTimer() {
+    Random random = Random();
+    Timer.periodic(const Duration(seconds:1), (Timer t){
+      int x = random.nextInt(10);
+      signOutput += labels[x];
+      if (signOutput.length > maxLength) {
+        signOutput = signOutput.substring(signOutput.length - maxLength);
+      }
+      setState(() {
+
+      });
+    });
+
+  }
+
   static Future<void> speak(String languageCode, String text) async {
     final flutterTts = FlutterTts();
     await flutterTts.setLanguage(languageCode);
@@ -189,18 +206,6 @@ class _VideoCallState extends State<VideoCall> {
         )
             : Stack(
           children: [
-            Container(
-              alignment: Alignment.bottomCenter,
-              margin: EdgeInsets.fromLTRB(5, 0, 5, 20),
-              child: Text(
-                _signLanguageOn ? signOutput : "",
-                style: const TextStyle(
-                  color: MyColors.text,
-                  fontWeight: FontWeight.w300,
-                  fontFamily: 'Futura',
-                ),
-              ),
-            ),
             AgoraVideoViewer(
               client: _client,
               layoutType: Layout.floating,
@@ -208,31 +213,69 @@ class _VideoCallState extends State<VideoCall> {
             ),
             AgoraVideoButtons(
                 client: _client,
+              enabledButtons: const [
+
+                BuiltInButtons.toggleMic,
+                BuiltInButtons.toggleCamera,
+                BuiltInButtons.callEnd,
+                BuiltInButtons.toggleCamera
+              ],
               extraButtons: [
                 Positioned.fill(
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Padding(
-                        padding: const EdgeInsets.only(bottom: 40),
-                        child: FloatingActionButton(
-                          backgroundColor: Colors.white,
-                          onPressed: () {
-                            setState(() {
-                              _signLanguageOn=!_signLanguageOn;
-                            });
-                          },
-                          child: const Icon(
-                            Icons.sign_language,
-                            color: Colors.blue,
-                          ),
-                        )),
+                  child: Expanded(
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                          padding: const EdgeInsets.fromLTRB(
+                              5, 0, 5, 40),
+                          child: FloatingActionButton.small(
+                            backgroundColor: !_signLanguageOn
+                                ? Colors.white
+                                : Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                              BorderRadius.circular(50),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _signLanguageOn =
+                                !_signLanguageOn;
+                              });
+                            },
+                            child: Icon(
+                              Icons.sign_language,
+                              color: _signLanguageOn
+                                  ? Colors.white
+                                  : Colors.blue,
+                            ),
+                          )
+                      ),
+                    ),
                   ),
                 ),
               ],
-            )
+            ),
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(5, 0, 5, 120),
+                  child: Text(
+                    _signLanguageOn ? signOutput : "",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w300,
+                      fontFamily: 'Futura',
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
+
+
 }

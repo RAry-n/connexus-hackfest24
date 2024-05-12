@@ -136,6 +136,11 @@ class _OtpScreenState extends State<OtpScreen> {
     ap.verifyOtp(context: context, verificationId: widget.verificationId, userOtp: otp, onSuccess: () {
       Navigator.pushNamedAndRemoveUntil(context, '/home_screen', (route) => false);
     });
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      // setState(() {
+      //
+      // });
+    });
   }
 
 }

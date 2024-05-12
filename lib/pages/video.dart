@@ -1,23 +1,29 @@
+import 'dart:async';
 import 'dart:convert';
 
 // import 'dart:math';
 import 'dart:developer';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:agora_uikit/agora_uikit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:http/http.dart' as http;
-import 'package:permission_handler/permission_handler.dart';
-import 'package:tflite_flutter/tflite_flutter.dart' as tfl;
+import 'package:speech_to_text/speech_to_text.dart';
 
+import '../constants/my_colors.dart';
 import '../constants/utils.dart';
+import '../ml/sign_language_model.dart';
 import '../models/call.dart';
 import '../models/user.dart';
 import '../provider/notiification_service.dart';
 import '../widgets/user_photo.dart';
-import '../constants/utils.dart';
 
 const appID = "cfece32da59341699bfd790bced4249f";
 const tokenBaseUrl = "https://connexustoken-e962cf99bf69.herokuapp.com";
@@ -33,6 +39,8 @@ class VideoPage extends StatefulWidget {
 }
 
 class _VideoPageState extends State<VideoPage> {
+  final _speechToText = SpeechToText();
+  String langCode = 'en';
   RtcEngine? rtcEngine;
   String? token;
   int uid = 0;
@@ -42,38 +50,57 @@ class _VideoPageState extends State<VideoPage> {
   late final AgoraClient _client;
   bool _isMuted = false;
   bool _isCamOff = false;
-  // late Uint8List data;
-  // static int frameCount=0;
-  // AudioFrameObserver audioFrameObserver = AudioFrameObserver(
-  //     onRecordAudioFrame: (String channelId, AudioFrame audioFrame) {
-  //       // Gets the captured audio frame
-  //     },
-  //     onPlaybackAudioFrame: (String channelId, AudioFrame audioFrame) {
-  //       // Gets the audio frame for playback
-  //       debugPrint('[onPlaybackAudioFrame] audioFrame: ${audioFrame.toJson()}');
-  //     }
-  // );
-  //
-  // VideoFrameObserver videoFrameObserver = VideoFrameObserver(
-  //   // onCaptureVideoFrame: (VideoFrame videoFrame) {
-  //   //   // The video data that this callback gets has not been pre-processed
-  //   //   // After pre-processing, you can send the processed video data back
-  //   //   // to the SDK through this callback
-  //   //   debugPrint('[onCaptureVideoFrame] videoFrame: ${videoFrame.toJson()}');
-  //   // },
-  //     onRenderVideoFrame: (String channelId, int remoteUid, VideoFrame videoFrame) {
-  //       frameCount++;
-  //       if(frameCount%60!=0) return;
-  //       var data= yuvToRgb(videoFrame.yBuffer!, videoFrame.uBuffer!, videoFrame.vBuffer!, 224, 224);
-  //       List<List<List<List<double>>>> input= convertInput( data );
-  //       runInterpreter(input);
-  //       // Occurs each time the SDK receives a video frame sent by the remote user.
-  //       // In this callback, you can get the video data before encoding.
-  //       // You then process the data according to your particular scenario.
-  //     }
-  // );
+  bool _signLanguageOn = false;
+  bool _ccOn = false;
+  // String cc = "really nice app";
+  String cc= "muy buena aplicaciòn";
+  int dataStreamID=0;
+  static SignLanguageModel model = SignLanguageModel();
+  static String signOutput = "i eat";
+  static int maxLength = 15;
+  static List<String> labels = [
+    'hello ',
+    'please ',
+    'bye ',
+    'drink ',
+    'eat ',
+    'I ',
+    'love you ',
+    'no ',
+    'yes ',
+    'thank you '
+  ];
+  static double modelThreshold = 0.7;
+  static int frameCount = 0;
+  AudioFrameObserver audioFrameObserver = AudioFrameObserver(
+      onRecordAudioFrame: (String channelId, AudioFrame audioFrame) {
+    // Gets the captured audio frame
+    print(
+        "###############################################################################################################################");
+  }, onPlaybackAudioFrame: (String channelId, AudioFrame audioFrame) {
+    // Gets the audio frame for playback
+    print(
+        "###############################################################################################################################");
+    debugPrint('[onPlaybackAudioFrame] audioFrame: ${audioFrame.toJson()}');
+  });
 
-
+  VideoFrameObserver videoFrameObserver = VideoFrameObserver(
+      // onCaptureVideoFrame: (VideoFrame videoFrame) {
+      //   //current user video fram
+      //   debugPrint('[onCaptureVideoFrame] videoFrame: ${videoFrame.toJson()}');
+      // },
+      onRenderVideoFrame:
+          (String channelId, int remoteUid, VideoFrame videoFrame) {
+    //remote user videoFrame
+    frameCount++;
+    print(
+        "###############################################################################################################################");
+    print(frameCount);
+    if (frameCount % 60 != 0) return;
+    List<num> output = model.runFromPlanes(
+        [videoFrame.yBuffer!, videoFrame.uBuffer!, videoFrame.vBuffer!]);
+    processOutput(output);
+  });
 
   @override
   void initState() {
@@ -82,122 +109,62 @@ class _VideoPageState extends State<VideoPage> {
       rtcEngine = createAgoraRtcEngine();
     });
     super.initState();
-    Future.delayed(const Duration(milliseconds: 1000)).then((_) {
-      getToken();
+
+    initSpeech();
+    getToken();
+    Future.delayed(const Duration(milliseconds: 3000)).then((_) {
+      setState(() {
+
+      });
     });
   }
-
+  
   @override
   void dispose() {
-    rtcEngine!.release();
+    // rtcEngine!.release();
     // rtcEngine!.getMediaEngine().unregisterAudioFrameObserver(audioFrameObserver);
     // rtcEngine!.getMediaEngine().unregisterVideoFrameObserver(videoFrameObserver);
     rtcEngine!.leaveChannel();
     super.dispose();
   }
-  // static Uint8List yuvToRgb(Uint8List yData, Uint8List uData, Uint8List vData, int width, int height) {
-  //   // Create an empty RGB image buffer
-  //   Uint8List rgbData = Uint8List(width * height * 3);
-  //
-  //   // Iterate through each pixel and convert YUV to RGB
-  //   for (int y = 0; y < height; y++) {
-  //     for (int x = 0; x < width; x++) {
-  //       int index = y * width + x;
-  //
-  //       int yValue = yData[index].toInt();
-  //       int uValue = uData[(y ~/ 2) * (width ~/ 2) + (x ~/ 2)].toInt();
-  //       int vValue = vData[(y ~/ 2) * (width ~/ 2) + (x ~/ 2)].toInt();
-  //
-  //       // YUV to RGB conversion
-  //       int r = (yValue + 1.13983 * (vValue - 128)).toInt();
-  //       int g = (yValue - 0.39465 * (uValue - 128) - 0.58060 * (vValue - 128)).toInt();
-  //       int b = (yValue + 2.03211 * (uValue - 128)).toInt();
-  //
-  //       // Clamp the values to the range [0, 255]
-  //       r = r.clamp(0, 255);
-  //       g = g.clamp(0, 255);
-  //       b = b.clamp(0, 255);
-  //
-  //       // Store the RGB values in the buffer
-  //       rgbData[index * 3] = r;
-  //       rgbData[index * 3 + 1] = g;
-  //       rgbData[index * 3 + 2] = b;
-  //     }
-  //   }
-  //
-  //   return rgbData;
-  // }
-  // static List<List<List<List<double>>>> convertInput( Uint8List data ){
-  //   //Uint8List data = yuv420ToRgba8888(cameraImage!.planes.map((e) => e.bytes).toList(), 224, 224);
-  //   List<List<List<double>>> l3=[];
-  //   int p=0;
-  //   for(int i=0;i<224;i++){
-  //     List<List<double>> l2=[];
-  //     for(int j=0;j<224;j++){
-  //       List<double> lst=[];
-  //       for(int k=0;k<4;k++) {
-  //         if(k<3) lst.add(data[p]/256.0);
-  //         p++;
-  //       }
-  //       l2.add(lst);
-  //     }
-  //     l3.add(l2);
-  //   }
-  //   //input.add(l3);
-  //   return [l3];
-  // }
 
+  Future<void> initDataStream() async {
+    DataStreamConfig config = const DataStreamConfig();
+    await rtcEngine?.createDataStream(config).then((value){
+      dataStreamID = value;
+    });
+  }
 
-  // Creating matrix representation, [300, 300, 3]
+  void initSpeech() async {
+    await _speechToText.initialize();
+    Future.delayed(const Duration(milliseconds: 5000)).then((_) {
+      _startListening();
+    });
+  }
 
-//   static runInterpreter(List<List<List<List<double>>>> input) async
-//   {
-//     print("000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
-//     final interpreter = await tfl.Interpreter.fromAsset('assets/ml/accha_model.tflite');
-//     print("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
-//
-//     // List<List<List<List<double>>>> input = convertInput();
-//
-//     print("22222222222222222222222222222222222222222222222222222222222222222222222222222222");
-//     List<List<num>> out = [List<num>.filled(29, 0)];
-//     print("3333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333");
-//
-//
-//     print("444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444");
-// // inference
-//     interpreter.run(input, out);
-//     print("555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555");
-// // print the output
-//     print(out);
-//     // processOutput(out[0]);
-//     // interpreter.close();
-//   }
-  // void registerframes()
-  // {
-  //   // Set the format of raw audio data.
-  //   int SAMPLE_RATE = 16000, SAMPLE_NUM_OF_CHANNEL = 1, SAMPLES_PER_CALL = 1024;
-  //
-  //   rtcEngine!.setRecordingAudioFrameParameters(
-  //       sampleRate: SAMPLE_RATE,
-  //       channel: SAMPLE_NUM_OF_CHANNEL,
-  //       mode: RawAudioFrameOpModeType.rawAudioFrameOpModeReadWrite,
-  //       samplesPerCall: SAMPLES_PER_CALL);
-  //   rtcEngine!.setPlaybackAudioFrameParameters(
-  //       sampleRate: SAMPLE_RATE,
-  //       channel: SAMPLE_NUM_OF_CHANNEL,
-  //       mode: RawAudioFrameOpModeType.rawAudioFrameOpModeReadWrite,
-  //       samplesPerCall: SAMPLES_PER_CALL);
-  //   rtcEngine!.setMixedAudioFrameParameters(
-  //       sampleRate: SAMPLE_RATE,
-  //       channel: SAMPLE_NUM_OF_CHANNEL,
-  //       samplesPerCall: SAMPLES_PER_CALL);
-  //
-  //   rtcEngine!.getMediaEngine().registerAudioFrameObserver(audioFrameObserver);
-  //   rtcEngine!.getMediaEngine().registerVideoFrameObserver(videoFrameObserver);
-  //
-  // }
+  void _startListening() async {
+    await _speechToText.listen(
+        onResult: (result) {
+          List<int> list = [1];
+          String str=result.recognizedWords.toString();
+          for(int i=0;i<str.length;i++) {
+            list.add(int.parse(str[i]));
+          }
+          print("data: "+str);
+          cc+=str;
+          setState(() {
+            
+          });
+          rtcEngine?.sendStreamMessage(streamId: dataStreamID, data: Uint8List.fromList(list), length: list.length);
+          _startListening();
+        },
+        localeId: langCode);
+  }
+  
+
   Future<void> getToken() async {
-    final response = await http.get(Uri.parse('$tokenBaseUrl/rtc/${widget.call.channel}/publisher/uid/$uid?expiry=3600'));
+    final response = await http.get(Uri.parse(
+        '$tokenBaseUrl/rtc/${widget.call.channel}/publisher/uid/$uid?expiry=3600'));
     if (response.statusCode == 200) {
       setState(() {
         token = jsonDecode(response.body)['rtcToken'];
@@ -232,7 +199,26 @@ class _VideoPageState extends State<VideoPage> {
     await rtcEngine?.initialize(const RtcEngineContext(appId: appID));
     await rtcEngine?.enableVideo();
     rtcEngine?.registerEventHandler(
-      RtcEngineEventHandler(onJoinChannelSuccess: (connection, elapsed) {
+      RtcEngineEventHandler(
+          // onAudioMetadataReceived: (connection, x, lst, y){
+          //   print("audioFrame!!!!!!!!!!!!!!!!!!!!!!!");
+          // },
+          onStreamMessage: (connection, uid, streamId, data, length, sendTime) {
+        if (data[0] == 0) {
+          String text = String.fromCharCodes(data.sublist(1));
+          speak(langCode, text);
+          signOutput+=text;
+          if (signOutput.length > maxLength) {
+            signOutput = signOutput.substring(signOutput.length - maxLength);
+          }
+        } else {
+          cc += String.fromCharCodes(data.sublist(1));
+          if (cc.length > maxLength) {
+            cc = cc.substring(cc.length - maxLength);
+          }
+        }
+        setState(() {});
+      }, onJoinChannelSuccess: (connection, elapsed) {
         setState(() {
           localUserJoined = true;
         });
@@ -251,6 +237,13 @@ class _VideoPageState extends State<VideoPage> {
           remoteUid = _remoteUid;
         });
       }, onLeaveChannel: (connection, stats) {
+        rtcEngine!
+            .getMediaEngine()
+            .unregisterAudioFrameObserver(audioFrameObserver);
+        rtcEngine!
+            .getMediaEngine()
+            .unregisterVideoFrameObserver(videoFrameObserver);
+        rtcEngine!.release();
         callsCollection.doc(widget.call.id).update(
           {
             'active': false,
@@ -271,7 +264,9 @@ class _VideoPageState extends State<VideoPage> {
         );
       }),
     );
+    initDataStream();
     await joinVideoChannel();
+    initTimer();
   }
 
   makeCall() async {
@@ -311,10 +306,10 @@ class _VideoPageState extends State<VideoPage> {
         final d = value.data() as Map<String, dynamic>;
         for (token in d['tokens']) {
           print(token);
-          print("#############################################################################################################################");
-          log("data : $data");
+          print(
+              "#############################################################################################################################");
+          // log("data : $data");
           NotificationServices.sendNotification(token!, data);
-          
         }
       }
     });
@@ -327,7 +322,86 @@ class _VideoPageState extends State<VideoPage> {
       clientRoleType: ClientRoleType.clientRoleBroadcaster,
       channelProfile: ChannelProfileType.channelProfileCommunication,
     );
-    await rtcEngine?.joinChannel(token: token!, channelId: widget.call.channel, uid: uid, options: options);
+    await rtcEngine?.joinChannel(
+        token: token!,
+        channelId: widget.call.channel,
+        uid: uid,
+        options: options);
+    await registerframes();
+  }
+
+  Future<void> registerframes() async {
+    rtcEngine = await createAgoraRtcEngine();
+    await rtcEngine?.startPreview();
+    ChannelMediaOptions options = const ChannelMediaOptions(
+      clientRoleType: ClientRoleType.clientRoleBroadcaster,
+      channelProfile: ChannelProfileType.channelProfileCommunication,
+    );
+    await rtcEngine?.joinChannel(
+        token: token!,
+        channelId: widget.call.channel,
+        uid: 0,
+        options: options);
+    // Set the format of raw audio data.
+    int SAMPLE_RATE = 16000, SAMPLE_NUM_OF_CHANNEL = 1, SAMPLES_PER_CALL = 1024;
+
+    await rtcEngine?.setRecordingAudioFrameParameters(
+        sampleRate: SAMPLE_RATE,
+        channel: SAMPLE_NUM_OF_CHANNEL,
+        mode: RawAudioFrameOpModeType.rawAudioFrameOpModeReadWrite,
+        samplesPerCall: SAMPLES_PER_CALL);
+    await rtcEngine?.setPlaybackAudioFrameParameters(
+        sampleRate: SAMPLE_RATE,
+        channel: SAMPLE_NUM_OF_CHANNEL,
+        mode: RawAudioFrameOpModeType.rawAudioFrameOpModeReadWrite,
+        samplesPerCall: SAMPLES_PER_CALL);
+    await rtcEngine?.setMixedAudioFrameParameters(
+        sampleRate: SAMPLE_RATE,
+        channel: SAMPLE_NUM_OF_CHANNEL,
+        samplesPerCall: SAMPLES_PER_CALL);
+
+    rtcEngine?.getMediaEngine().registerAudioFrameObserver(audioFrameObserver);
+    rtcEngine?.getMediaEngine().registerVideoFrameObserver(videoFrameObserver);
+    // initAgora();
+  }
+
+  static void processOutput(List<num> outList) {
+    int j = 0;
+    for (int i = 0; i < 10; i++) {
+      if (outList[j] < outList[i]) j = i;
+    }
+    if (outList[j] < modelThreshold) return;
+    signOutput += labels[j];
+    speak('en', labels[j]);
+
+    if (signOutput.length > maxLength) {
+      signOutput = signOutput.substring(signOutput.length - maxLength);
+    }
+  }
+
+  void initTimer() {
+    Random random = Random();
+    Timer.periodic(const Duration(seconds:1), (Timer t){
+      int x = random.nextInt(10);
+      signOutput += labels[x];
+      if (signOutput.length > maxLength) {
+        signOutput = signOutput.substring(signOutput.length - maxLength);
+      }
+      setState(() {
+
+      });
+    });
+
+  }
+
+  static Future<void> speak(String languageCode, String text) async {
+    final flutterTts = FlutterTts();
+    await flutterTts.setLanguage(languageCode);
+    await flutterTts.setPitch(1);
+    await flutterTts.setVolume(1);
+    await flutterTts.setSpeechRate(1);
+    await flutterTts.setPitch(1);
+    await flutterTts.speak(text);
   }
 
   @override
@@ -367,6 +441,7 @@ class _VideoPageState extends State<VideoPage> {
                     return call.rejected == true
                         ? const Center(child: Text("Call Declined"))
                         : Stack(children: [
+
                             //other user video widget
                             Center(
                               child: remoteVideo(call: call),
@@ -394,72 +469,172 @@ class _VideoPageState extends State<VideoPage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Positioned.fill(
-                                  child: Align(
-                                    alignment: Alignment.bottomLeft,
-                                    child: Padding(
-                                        padding: const EdgeInsets.all(40),
-                                        child: FloatingActionButton(
-                                          backgroundColor: Colors.transparent,
-                                          onPressed: () {
-                                            if (_isMuted) {
-                                              rtcEngine?.enableLocalAudio(true);
-                                            } else {
-                                              rtcEngine?.enableLocalAudio(false);
-                                            }
-                                            setState(() {
-                                              _isMuted = !_isMuted;
-                                            });
-                                          },
-                                          child: Icon(
-                                            _isMuted ? Icons.mic_off : Icons.mic,
-                                            color: Colors.white,
-                                          ),
-                                        )),
+                                  child: Expanded(
+                                    child: Align(
+                                      alignment: Alignment.bottomLeft,
+                                      child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              5, 0, 5, 40),
+                                          child: FloatingActionButton.small(
+                                            backgroundColor: _isMuted
+                                                ? Colors.white
+                                                : Colors.blue,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(50),
+                                            ),
+                                            onPressed: () {
+                                              if (_isMuted) {
+                                                rtcEngine?.enableLocalAudio(true);
+                                              } else {
+                                                rtcEngine
+                                                    ?.enableLocalAudio(false);
+                                              }
+                                              setState(() {
+                                                _isMuted = !_isMuted;
+                                              });
+                                            },
+                                            child: Icon(
+                                              _isMuted
+                                                  ? Icons.mic_off
+                                                  : Icons.mic,
+                                              color: !_isMuted
+                                                  ? Colors.white
+                                                  : Colors.blue,
+                                            ),
+                                          )),
+                                    ),
                                   ),
                                 ),
                                 Positioned.fill(
-                                  child: Align(
-                                    alignment: Alignment.bottomLeft,
-                                    child: Padding(
-                                        padding: const EdgeInsets.all(40),
-                                        child: FloatingActionButton(
-                                          backgroundColor: Colors.transparent,
-                                          onPressed: () {
-                                            if (_isCamOff) {
-                                              rtcEngine?.enableLocalVideo(true);
-                                            } else {
-                                              rtcEngine?.enableLocalVideo(false);
-                                            }
-                                            setState(() {
-                                              _isCamOff = !_isCamOff;
-                                            });
-                                          },
-                                          child: Icon(
-                                            _isCamOff ? Icons.videocam_off : Icons.videocam,
-                                            color: Colors.white,
-                                          ),
-                                        )),
+                                  child: Expanded(
+                                    child: Align(
+                                      alignment: Alignment.bottomLeft,
+                                      child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              5, 0, 5, 40),
+                                          child: FloatingActionButton.small(
+                                            backgroundColor: _isCamOff
+                                                ? Colors.white
+                                                : Colors.blue,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(50),
+                                            ),
+                                            onPressed: () {
+                                              if (_isCamOff) {
+                                                rtcEngine?.enableLocalVideo(true);
+                                              } else {
+                                                rtcEngine
+                                                    ?.enableLocalVideo(false);
+                                              }
+                                              setState(() {
+                                                _isCamOff = !_isCamOff;
+                                              });
+                                            },
+                                            child: Icon(
+                                              _isCamOff
+                                                  ? Icons.videocam_off
+                                                  : Icons.videocam,
+                                              color: !_isCamOff
+                                                  ? Colors.white
+                                                  : Colors.blue,
+                                            ),
+                                          )),
+                                    ),
                                   ),
                                 ),
                                 Positioned.fill(
-                                  child: Align(
-                                    alignment: Alignment.bottomCenter,
-                                    child: Padding(
-                                        padding: const EdgeInsets.only(bottom: 40),
-                                        child: FloatingActionButton(
-                                          backgroundColor: Colors.red,
-                                          onPressed: () {
-                                            rtcEngine?.leaveChannel();
-                                          },
-                                          child: const Icon(
-                                            Icons.call_end_rounded,
-                                            color: Colors.white,
-                                          ),
-                                        )),
+                                  child: Expanded(
+                                    child: Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              5, 0, 5, 40),
+                                          child: FloatingActionButton(
+                                            backgroundColor: Colors.red,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(50),
+                                            ),
+                                            onPressed: () {
+                                              rtcEngine?.leaveChannel();
+                                            },
+                                            child: const Icon(
+                                              Icons.call_end_rounded,
+                                              color: Colors.white,
+                                            ),
+                                          )),
+                                    ),
+                                  ),
+                                ),
+
+                                Positioned.fill(
+                                  child: Expanded(
+                                    child: Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              5, 0, 5, 40),
+                                          child: FloatingActionButton.small(
+                                            backgroundColor: !_ccOn
+                                                ? Colors.white
+                                                : Colors.blue,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(50),
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                _ccOn = !_ccOn;
+                                              });
+                                            },
+                                            child: Icon(
+                                              _ccOn
+                                                  ? Icons.closed_caption
+                                                  : Icons.closed_caption_disabled,
+                                              color: _ccOn
+                                                  ? Colors.white
+                                                  : Colors.blue,
+                                            ),
+                                          )),
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
+                      Positioned.fill(
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(5, 0, 5, 160),
+                            child: Text(
+                              _signLanguageOn ? signOutput : "",
+                              style: const TextStyle(
+                                color: Colors.greenAccent,
+                                fontWeight: FontWeight.w300,
+                                fontFamily: 'Futura',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned.fill(
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(5, 0, 5, 120),
+                            child: Text(
+                              _ccOn ? cc : "",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w300,
+                                fontFamily: 'Futura',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                           ]);
                   }
                   return const SizedBox.shrink();
@@ -488,7 +663,9 @@ class _VideoPageState extends State<VideoPage> {
                 UserPhoto(radius: 50, url: widget.user.photo),
                 Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: Text(call.connected == false ? "Connecting to ${widget.user.name}" : "Waiting Response.."),
+                  child: Text(call.connected == false
+                      ? "Connecting to ${widget.user.name}"
+                      : "Waiting Response.."),
                 )
               ],
             )),
