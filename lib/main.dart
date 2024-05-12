@@ -151,6 +151,7 @@ class _MyAppHomePageState extends State<MyAppHomePage> {
   }
 
   Future<void> _initializeApp() async {
+    NotificationServices.startListeningNotificationEvents();
     final ap = Provider.of<MyAuthProvider>(context, listen: false);
     await ap.checkSignIn();
     setState(() {
