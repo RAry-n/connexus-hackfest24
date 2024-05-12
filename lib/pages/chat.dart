@@ -12,7 +12,7 @@ import '../widgets/chat_bubble.dart';
 import '../widgets/loading_widget.dart';
 
 class Chat extends StatefulWidget {
-  const Chat({super.key});
+  const Chat({Key? key}) : super(key: key);
 
   @override
   State<Chat> createState() => _ChatState();
@@ -20,76 +20,32 @@ class Chat extends StatefulWidget {
 
 class _ChatState extends State<Chat> {
   List<Map> chatHistory = [];
-
-  //   {
-  //     'msg' : 'hehe',
-  //     'time' : '14/04/23 04:20',
-  //     'isCurr' : '1',
-  //   },
-  //
-  //   {
-  //     'msg' : 'hihi',
-  //     'time' : '14/04/23 04:21',
-  //     'isCurr' : '0',
-  //   },
-  // ];
   late DatabaseReference dbRef;
   late Contact contactData;
   bool isFetched = false;
   late String currPhone;
   late String receiverPhone;
-
   var msgController = TextEditingController();
-
-  void getData() async {
-    currPhone = FirebaseAuth.instance.currentUser!.phoneNumber.toString().substring(3);
-    // currPhone = "+9162274063";
-    dbRef = FirebaseDatabase.instance.ref();
-    contactData = (ModalRoute.of(context)?.settings.arguments as Map)['contact'];
-    receiverPhone = contactData.phones!.first.value!;
-    receiverPhone = receiverPhone.replaceAll(" ", '');
-    if (receiverPhone[0] == '+') {
-      receiverPhone = receiverPhone.substring(3);
-    }
-    final snapshot = await dbRef.child('chat/$currPhone/$receiverPhone').get();
-    if (snapshot.exists) {
-      // print(snapshot.value.toString());
-      final dataMap = snapshot.value as Map;
-      chatHistory = [];
-      dataMap.forEach((key, value) {
-        chatHistory.add(value);
-      });
-
-      chatHistory.sort((Map a, Map b) {
-        return a['time'].compareTo(b['time']);
-      });
-      // print(chatHistory);
-      setState(() {
-        isFetched = true;
-      });
-    } else {
-      setState(() {
-        isFetched = true;
-      });
-      // print('No data available.');
-    }
-  }
-
   ScrollController listScrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    scrollToBottom();
+    // getData(); // Fetch initial chat history and initialize dbRef
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Call getData() method here to initialize data that depends on inherited widgets
+    getData();
   }
 
   @override
   Widget build(BuildContext context) {
     if (!isFetched) {
-      getData();
       return const LoadingWidget();
     } else {
-      // getData();
       return Scaffold(
         appBar: AppBar(
           backgroundColor: MyColors.appBarColor,
@@ -110,7 +66,6 @@ class _ChatState extends State<Chat> {
         ),
         body: Column(
           children: [
-            // Center(child: Text("data")),
             Expanded(
               child: ListView(
                 physics: const BouncingScrollPhysics(),
@@ -160,6 +115,48 @@ class _ChatState extends State<Chat> {
     }
   }
 
+  void getData() async {
+    // Initialize Firebase Realtime Database reference
+    dbRef = FirebaseDatabase.instance.ref();
+    currPhone = FirebaseAuth.instance.currentUser!.phoneNumber.toString().substring(3);
+    contactData = (ModalRoute.of(context)?.settings.arguments as Map)['contact'] as Contact;
+    receiverPhone = contactData.phones!.first.value!;
+    receiverPhone = receiverPhone.replaceAll(" ", '');
+    if (receiverPhone[0] == '+') {
+      receiverPhone = receiverPhone.substring(3);
+    }
+
+    // Set up listener for new chat messages
+    dbRef.child('chat/$currPhone/$receiverPhone').onChildAdded.listen((event) {
+      // Trigger UI update when a new message is added
+      setState(() {
+        chatHistory.add(event.snapshot.value as Map);
+      });
+      scrollToBottom(animate: true);
+    });
+
+    // Fetch initial chat history
+    final snapshot = await dbRef.child('chat/$currPhone/$receiverPhone').get();
+    if (snapshot.exists) {
+      final dataMap = snapshot.value as Map;
+      chatHistory = [];
+      dataMap.forEach((key, value) {
+        chatHistory.add(value as Map);
+      });
+
+      chatHistory.sort((Map a, Map b) {
+        return a['time'].compareTo(b['time']);
+      });
+      setState(() {
+        isFetched = true;
+      });
+    } else {
+      setState(() {
+        isFetched = true;
+      });
+    }
+  }
+
   void scrollToBottom({bool animate = false}) {
     if (listScrollController.hasClients) {
       final position = listScrollController.position.maxScrollExtent;
@@ -193,12 +190,16 @@ class _ChatState extends State<Chat> {
       'msg': msg,
       'time': currTime,
       'isCurr': '0',
+      'type': 'msg'
     };
     ref2.set(val2);
     scrollToBottom(animate: true);
   }
 
   void connectCall() {
+    int currTime = DateTime.now().millisecondsSinceEpoch;
+
+
     UserModel user = UserModel(
         id: receiverPhone,
         name: contactData.displayName.toString(),
@@ -209,7 +210,6 @@ class _ChatState extends State<Chat> {
           user: user,
           call: CallModel(
             id: null,
-            // channel: "video",
             channel: "video$currPhone$receiverPhone",
             caller: currPhone,
             called: receiverPhone,
