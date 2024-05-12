@@ -190,12 +190,16 @@ class _ChatState extends State<Chat> {
       'msg': msg,
       'time': currTime,
       'isCurr': '0',
+      'type': 'msg'
     };
     ref2.set(val2);
     scrollToBottom(animate: true);
   }
 
   void connectCall() {
+    int currTime = DateTime.now().millisecondsSinceEpoch;
+
+
     UserModel user = UserModel(
         id: receiverPhone,
         name: contactData.displayName.toString(),
