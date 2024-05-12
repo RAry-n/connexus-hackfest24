@@ -1,4 +1,4 @@
-# CONNEXUS - An Aid to the Speech-Impaired Community 🌐🗣️🤟
+# CONNEXUS - An Aid to the Specially Abled Community 🌐🗣️🤟
 
 <img src="https://res.cloudinary.com/dxomldckp/image/upload/v1715480305/tlarj4pnpgdtf39clsem.png" alt="CerebroScan Logo" width="200">
 
@@ -28,5 +28,31 @@ To tackle this challenge, our team is developing a video conferencing app equipp
 * ✅ Integrate the Machine Learning Model into the app for Sign Language Detection (American Sign Language)
 * ✅ Integrate the Agora SDK to implement Video Calls and Group Chats
 * ⚠️ Add the above added features to the video calling feature using Agora SDK frame observers (In Progress)
+
+## 📱 App Screenshots
+
+<div style="display: flex; justify-content: space-between;">
+  <img src="https://res.cloudinary.com/dxomldckp/image/upload/v1715483035/connexus/k3fcukbousk0ionentq0.jpg" alt="App Screenshot" width="200">
+  <img src="https://res.cloudinary.com/dxomldckp/image/upload/v1715483035/connexus/pb8oahhdd3acugot8qtf.jpg" alt="App Screenshot" width="200">
+  <img src="https://res.cloudinary.com/dxomldckp/image/upload/v1715483035/connexus/yy6ramjzstzjiqc9etsx.jpg" alt="App Screenshot" width="200">
+  <img src="https://res.cloudinary.com/dxomldckp/image/upload/v1715483036/connexus/q7ucvcuimjxvlwjdrm2e.jpg" alt="App Screenshot" width="200">
+  <img src="https://res.cloudinary.com/dxomldckp/image/upload/v1715483036/connexus/qc3mfqihyx34y9kujrit.jpg" alt="App Screenshot" width="200">
+  <img src="https://res.cloudinary.com/dxomldckp/image/upload/v1715483035/connexus/ysdsggq48tf6fngp8m55.jpg" alt="App Screenshot" width="200">
+  <img src="https://res.cloudinary.com/dxomldckp/image/upload/v1715483035/connexus/mcewmkinuubp4xobmybd.jpg" alt="App Screenshot" width="200">
+  <img src="https://res.cloudinary.com/dxomldckp/image/upload/v1715483035/connexus/lhgus3qez2wvl4bos1vy.jpg" alt="App Screenshot" width="200">
+  <img src="https://res.cloudinary.com/dxomldckp/image/upload/v1715483036/connexus/xfcnzoqibqmwph6upaef.jpg" alt="App Screenshot" width="200">
+</div>
+
+## 📄 License
+
+This project is licensed under the MIT License. See the [license.txt](license.txt) file for details.
+
+## 📬 Contact
+
+For any questions, feedback, or support related to the Let Me Know app, feel free to reach out:
+
+- **Email:** [aryanrdat@gmail.com](mailto:aryanrdat@gmail.com)
+- **Email:** [hombrecito2580@gmail.com](mailto:hombrecito2580@gmail.com)
+- **Email:** [abhinavkr.527@gmail.com](mailto:abhinavkr.527@gmail.com)
 
 Enhancing accessibility and inclusivity, one communication at a time! 🌟
