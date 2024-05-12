@@ -1,5 +1,7 @@
 # CONNEXUS - An Aid to the Speech-Impaired Community 🌐🗣️🤟
 
+<img src="https://res.cloudinary.com/dxomldckp/image/upload/v1715480305/tlarj4pnpgdtf39clsem.png" alt="CerebroScan Logo" width="200">
+
 ## Problem Statement:
 Our team aims to address the need for inclusive and accessible communication in video conferencing platforms. Many individuals, including those with hearing or speech impairments, face barriers to effective communication during virtual meetings. Our goal is to create a solution that enables seamless interaction for all users, regardless of their communication preferences or abilities.
 
@@ -20,9 +22,11 @@ To tackle this challenge, our team is developing a video conferencing app equipp
 * Tools: Git, GitHub 💻
 
 ## Workflow:
-* Implement converation (speech-to-text and text-to-speech) using Google Cloud API through flutter speech-to-text and text-to-speech plugins
-* Integrate YOLO V5 TFLite model into app
-* Integrate the Agora SDK to implement Video Calls
-* Add the above added features to the video calling feature
+* ✅ Add Firebase Phone Authentication to the project for in-app messaging and video conferencing
+* ✅ Add in-app messaging using Firebase Realtime Database
+* ✅ Implement conversation (speech-to-text and text-to-speech) using Google Cloud API through Flutter speech-to-text and text-to-speech plugins
+* ✅ Integrate the Machine Learning Model into the app for Sign Language Detection (American Sign Language)
+* ✅ Integrate the Agora SDK to implement Video Calls and Group Chats
+* ⚠️ Add the above added features to the video calling feature using Agora SDK frame observers (In Progress)
 
 Enhancing accessibility and inclusivity, one communication at a time! 🌟
