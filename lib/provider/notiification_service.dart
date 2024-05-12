@@ -48,6 +48,7 @@ class NotificationServices {
       ReceivedAction receivedAction) async {
     print("Action recieved!!!!!!!!!!!!!!!!!!");
     if (receivedAction.buttonKeyPressed == "ACCEPT") {
+      print("accepted!!!!!!!!!!!");
       Map userMap = receivedAction.payload!;
       UserModel user = UserModel(
           id: userMap['user'],
@@ -75,7 +76,7 @@ class NotificationServices {
       );
     }
     if (receivedAction.buttonKeyPressed == "REJECT") {
-      print("called rejected");
+      print("called rejected!!!!!!!!!!!!!!!!!!!!");
       callsCollection.doc(receivedAction.payload!['id']).update({
         'rejected': true,
       });
@@ -100,6 +101,7 @@ class NotificationServices {
       }
 
     }
+    print("notification recieved!!!!!!!");
     await AwesomeNotifications().createNotification(
         content: NotificationContent(
           id: random.nextInt(1000000),

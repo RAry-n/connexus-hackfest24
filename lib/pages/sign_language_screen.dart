@@ -1,3 +1,5 @@
+import 'package:connexus/ml/sign_language_model.dart';
+import 'package:connexus/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -9,7 +11,6 @@ import 'package:tflite_flutter/tflite_flutter.dart' as tfl;
 import 'dart:typed_data';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:camera/camera.dart';
-import 'package:flutter/material.dart';
 class SignLanguageScreen extends StatefulWidget {
   const SignLanguageScreen({super.key});
 
@@ -24,16 +25,23 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
   String word="";
   int cameraCnt=0;
   int maxLength = 15;
-
+  SignLanguageModel model = SignLanguageModel();
+  bool _isInitialized = false;
   @override
   void initState() {
     super.initState();
     loadCamera();
+    model.initialize().then((value){
+      setState(() {
+        _isInitialized = true;
+      });
+    });
   }
   @override
   void dispose()
   {
     cameraController?.dispose();
+    model.dispose();
     super.dispose();
   }
   loadCamera() {
@@ -48,7 +56,8 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
             {
               cameraCnt=1;
               //runModel();
-              runInterpreter();
+              List<num> output = model.runFromCamera(cameraImage!);
+              processOutput(output);
             }
             // runModel();
           });
@@ -171,7 +180,7 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
     for(int i=0;i<10;i++){
       if(outList[j]<outList[i]) j=i;
     }
-    if(outList[j]<0.5) return;
+    if(outList[j]<0.7) return;
     output+=labels[j];
     speak('en', labels[j]);
 
@@ -190,7 +199,9 @@ class _SignLanguageScreenState extends State<SignLanguageScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return !_isInitialized
+    ? const LoadingWidget()
+    : Scaffold(
       appBar: AppBar(
         backgroundColor: MyColors.appBarColor,
         titleTextStyle: TextThemes.appBar,

@@ -318,6 +318,7 @@ class _VideoPageState extends State<VideoPage> {
           print("#############################################################################################################################");
           log("data : $data");
           NotificationServices.sendNotification(token!, data);
+          
         }
       }
     });
