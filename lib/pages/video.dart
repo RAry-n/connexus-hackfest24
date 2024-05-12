@@ -56,7 +56,7 @@ class _VideoPageState extends State<VideoPage> {
   String cc= "muy buena aplicaciòn";
   int dataStreamID=0;
   static SignLanguageModel model = SignLanguageModel();
-  static String signOutput = "i eat";
+  static String signOutput = "";
   static int maxLength = 15;
   static List<String> labels = [
     'hello ',
@@ -102,6 +102,8 @@ class _VideoPageState extends State<VideoPage> {
     processOutput(output);
   });
 
+  late Timer t;
+
   @override
   void initState() {
     setState(() {
@@ -117,6 +119,7 @@ class _VideoPageState extends State<VideoPage> {
 
       });
     });
+    initTimer();
   }
   
   @override
@@ -125,6 +128,7 @@ class _VideoPageState extends State<VideoPage> {
     // rtcEngine!.getMediaEngine().unregisterAudioFrameObserver(audioFrameObserver);
     // rtcEngine!.getMediaEngine().unregisterVideoFrameObserver(videoFrameObserver);
     rtcEngine!.leaveChannel();
+    t.cancel();
     super.dispose();
   }
 
@@ -266,7 +270,7 @@ class _VideoPageState extends State<VideoPage> {
     );
     initDataStream();
     await joinVideoChannel();
-    initTimer();
+    // initTimer();
   }
 
   makeCall() async {
@@ -381,9 +385,10 @@ class _VideoPageState extends State<VideoPage> {
 
   void initTimer() {
     Random random = Random();
-    Timer.periodic(const Duration(seconds:1), (Timer t){
+    t = Timer.periodic(const Duration(seconds:1), (Timer t){
       int x = random.nextInt(10);
       signOutput += labels[x];
+      print(x);
       if (signOutput.length > maxLength) {
         signOutput = signOutput.substring(signOutput.length - maxLength);
       }
@@ -598,6 +603,38 @@ class _VideoPageState extends State<VideoPage> {
                                                   : Colors.blue,
                                             ),
                                           )),
+                                    ),
+                                  ),
+                                ),
+                                Positioned.fill(
+                                  child: Expanded(
+                                    child: Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              5, 0, 5, 40),
+                                          child: FloatingActionButton.small(
+                                            backgroundColor: !_signLanguageOn
+                                                ? Colors.white
+                                                : Colors.blue,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                              BorderRadius.circular(50),
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                _signLanguageOn =
+                                                !_signLanguageOn;
+                                              });
+                                            },
+                                            child: Icon(
+                                              Icons.sign_language,
+                                              color: _signLanguageOn
+                                                  ? Colors.white
+                                                  : Colors.blue,
+                                            ),
+                                          )
+                                      ),
                                     ),
                                   ),
                                 ),

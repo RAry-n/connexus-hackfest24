@@ -128,7 +128,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     await ap.signInWithPhone(context, "+${selectedCountry.phoneCode}$phoneNumber", userData).then((_) {
       print("after signed in!!!");
     });
-    await Future.delayed(const Duration(milliseconds: 1000), () {
+    await Future.delayed(const Duration(milliseconds: 4000), () {
 
     });
     setState(() {

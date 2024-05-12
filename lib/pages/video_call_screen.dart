@@ -213,47 +213,47 @@ class _VideoCallState extends State<VideoCall> {
             ),
             AgoraVideoButtons(
                 client: _client,
-              enabledButtons: const [
-
-                BuiltInButtons.toggleMic,
-                BuiltInButtons.toggleCamera,
-                BuiltInButtons.callEnd,
-                BuiltInButtons.toggleCamera
-              ],
-              extraButtons: [
-                Positioned.fill(
-                  child: Expanded(
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Padding(
-                          padding: const EdgeInsets.fromLTRB(
-                              5, 0, 5, 40),
-                          child: FloatingActionButton.small(
-                            backgroundColor: !_signLanguageOn
-                                ? Colors.white
-                                : Colors.blue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                              BorderRadius.circular(50),
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _signLanguageOn =
-                                !_signLanguageOn;
-                              });
-                            },
-                            child: Icon(
-                              Icons.sign_language,
-                              color: _signLanguageOn
-                                  ? Colors.white
-                                  : Colors.blue,
-                            ),
-                          )
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              // enabledButtons: const [
+              //
+              //   BuiltInButtons.toggleMic,
+              //   BuiltInButtons.toggleCamera,
+              //   BuiltInButtons.callEnd,
+              //   BuiltInButtons.toggleCamera
+              // ],
+              // extraButtons: [
+              //   Positioned.fill(
+              //     child: Expanded(
+              //       child: Align(
+              //         alignment: Alignment.bottomCenter,
+              //         child: Padding(
+              //             padding: const EdgeInsets.fromLTRB(
+              //                 5, 0, 5, 40),
+              //             child: FloatingActionButton.small(
+              //               backgroundColor: !_signLanguageOn
+              //                   ? Colors.white
+              //                   : Colors.blue,
+              //               shape: RoundedRectangleBorder(
+              //                 borderRadius:
+              //                 BorderRadius.circular(50),
+              //               ),
+              //               onPressed: () {
+              //                 setState(() {
+              //                   _signLanguageOn =
+              //                   !_signLanguageOn;
+              //                 });
+              //               },
+              //               child: Icon(
+              //                 Icons.sign_language,
+              //                 color: _signLanguageOn
+              //                     ? Colors.white
+              //                     : Colors.blue,
+              //               ),
+              //             )
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ],
             ),
             Positioned.fill(
               child: Align(
