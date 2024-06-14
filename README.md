@@ -27,7 +27,7 @@ To tackle this challenge, our team is developing a video conferencing app equipp
 * ✅ Implement conversation (speech-to-text and text-to-speech) using Google Cloud API through Flutter speech-to-text and text-to-speech plugins
 * ✅ Integrate the Machine Learning Model into the app for Sign Language Detection (American Sign Language)
 * ✅ Integrate the Agora SDK to implement Video Calls and Group Chats
-* ⚠️ Add the above added features to the video calling feature using Agora SDK frame observers (In Progress)
+* ✅ Add the above added features to the video calling feature using Agora SDK frame observers
 
 ## 📱 App Screenshots
 
@@ -49,7 +49,7 @@ This project is licensed under the MIT License. See the [license.txt](license.tx
 
 ## 📬 Contact
 
-For any questions, feedback, or support related to the Let Me Know app, feel free to reach out:
+For any questions, feedback, or support related to the Connexus app, feel free to reach out:
 
 - **Email:** [aryanrdat@gmail.com](mailto:aryanrdat@gmail.com)
 - **Email:** [hombrecito2580@gmail.com](mailto:hombrecito2580@gmail.com)
