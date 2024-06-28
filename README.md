@@ -45,6 +45,10 @@ To tackle this challenge, our team is developing a video conferencing app equipp
 
 </div>
 
+## Additional Resources
+
+- [Presentation.pdf](https://drive.google.com/file/d/1qzC5L9LRr2fn3Pd7BKU5jSobiCNGV9gr/view?usp=sharing)
+
 ## 📄 License
 
 This project is licensed under the MIT License. See the [license.txt](license.txt) file for details.
