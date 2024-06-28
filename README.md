@@ -39,8 +39,10 @@ To tackle this challenge, our team is developing a video conferencing app equipp
   <img src="https://res.cloudinary.com/dxomldckp/image/upload/v1715483036/connexus/qc3mfqihyx34y9kujrit.jpg" alt="App Screenshot" width="200">
   <img src="https://res.cloudinary.com/dxomldckp/image/upload/v1715483035/connexus/ysdsggq48tf6fngp8m55.jpg" alt="App Screenshot" width="200">
   <img src="https://res.cloudinary.com/dxomldckp/image/upload/v1715483035/connexus/mcewmkinuubp4xobmybd.jpg" alt="App Screenshot" width="200">
-  <img src="https://res.cloudinary.com/dxomldckp/image/upload/v1715483035/connexus/lhgus3qez2wvl4bos1vy.jpg" alt="App Screenshot" width="200">
+<!--   <img src="https://res.cloudinary.com/dxomldckp/image/upload/v1715483035/connexus/lhgus3qez2wvl4bos1vy.jpg" alt="App Screenshot" width="200"> -->
   <img src="https://res.cloudinary.com/dxomldckp/image/upload/v1715483036/connexus/xfcnzoqibqmwph6upaef.jpg" alt="App Screenshot" width="200">
+  <img src="https://github.com/RAry-n/connexus-hackfest24/assets/126502784/00accc5e-2167-45de-88a4-0466381bfdd8" alt="App Screenshot" width="200">
+
 </div>
 
 ## 📄 License
@@ -53,6 +55,6 @@ For any questions, feedback, or support related to the Connexus app, feel free t
 
 - **Email:** [aryanrdat@gmail.com](mailto:aryanrdat@gmail.com)
 - **Email:** [hombrecito2580@gmail.com](mailto:hombrecito2580@gmail.com)
-- **Email:** [abhinavkr.527@gmail.com](mailto:abhinavkr.527@gmail.com)
+- **Email:** [abhinavkr327@gmail.com](mailto:abhinavkr327@gmail.com)
 
 Enhancing accessibility and inclusivity, one communication at a time! 🌟
